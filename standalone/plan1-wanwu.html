@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>万物皆有答案 - 千问大模型</title>
+<style>
+/* === 内联自 shared/styles.css === */
+/* ================================================================
+ * 大广赛阿里云命题 · 设计系统 v2
+ * 设计方向：暗色科技 + 玻璃质感 + 精緻动效
+ * ================================================================ */
+
+:root {
+  /* === 主色调 === */
+  --c-orange: #FF6A00;
+  --c-orange-bright: #FF8C3A;
+  --c-blue: #0068FF;
+  --c-blue-bright: #3B82F6;
+  --c-purple: #8B5CF6;
+  --c-cyan: #06B6D4;
+
+  /* === 渐变 === */
+  --grad-brand: linear-gradient(135deg, #FF6A00 0%, #FF3D00 40%, #0068FF 100%);
+  --grad-warm: linear-gradient(135deg, #FF6A00, #F97316, #EF4444);
+  --grad-cool: linear-gradient(135deg, #0068FF, #3B82F6, #8B5CF6);
+  --grad-subtle: linear-gradient(180deg, rgba(255,106,0,0.06) 0%, rgba(0,104,255,0.06) 100%);
+
+  /* === 背景 === */
+  --bg-deep: #06080D;
+  --bg-base: #0A0E1A;
+  --bg-surface: #111827;
+  --bg-card: rgba(17, 24, 39, 0.6);
+  --bg-glass: rgba(255, 255, 255, 0.03);
+
+  /* === 文字 === */
+  --t-1: #FFFFFF;
+  --t-2: rgba(255, 255, 255, 0.65);
+  --t-3: rgba(255, 255, 255, 0.35);
+  --t-muted: rgba(255, 255, 255, 0.15);
+
+  /* === 边框 === */
+  --b-subtle: rgba(255, 255, 255, 0.06);
+  --b-card: rgba(255, 255, 255, 0.08);
+  --b-focus: rgba(255, 106, 0, 0.4);
+
+  /* === 圆角 === */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-2xl: 32px;
+  --r-full: 9999px;
+
+  /* === 阴影 === */
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  --shadow-glow-o: 0 0 30px rgba(255,106,0,0.15);
+  --shadow-glow-b: 0 0 30px rgba(0,104,255,0.15);
+  --shadow-glow-p: 0 0 30px rgba(139,92,246,0.15);
+
+  /* === 缓动 === */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ================================================================
+ * 基础重置
+ * ================================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-deep);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg-base);
+  color: var(--t-1);
+  line-height: 1.6;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ================================================================
+ * 动态网格背景
+ * ================================================================ */
+.bg-grid {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 20%, transparent 70%);
+}
+
+/* ================================================================
+ * 光晕
+ * ================================================================ */
+.glow-orb {
+  position: fixed; border-radius: 50%; filter: blur(100px);
+  pointer-events: none; z-index: 0; opacity: 0.12;
+  animation: orbBreath 8s ease-in-out infinite;
+}
+.glow-orb-o {
+  width: 500px; height: 500px;
+  background: var(--c-orange);
+  top: -200px; right: -150px;
+  animation-delay: 0s;
+}
+.glow-orb-b {
+  width: 400px; height: 400px;
+  background: var(--c-blue);
+  bottom: -150px; left: -100px;
+  animation-delay: -4s;
+}
+.glow-orb-p {
+  width: 300px; height: 300px;
+  background: var(--c-purple);
+  top: 40%; left: 50%;
+  animation-delay: -2s;
+}
+@keyframes orbBreath {
+  0%, 100% { opacity: 0.08; transform: scale(1) translate(0, 0); }
+  33% { opacity: 0.14; transform: scale(1.1) translate(30px, -20px); }
+  66% { opacity: 0.06; transform: scale(0.9) translate(-20px, 30px); }
+}
+
+/* ================================================================
+ * 排版
+ * ================================================================ */
+h1 { font-size: 2.125rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; }
+h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; }
+h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.35; }
+p  { color: var(--t-2); font-size: 0.9375rem; line-height: 1.7; }
+
+.text-gradient {
+  background: var(--grad-brand);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-warm {
+  background: var(--grad-warm);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-cool {
+  background: var(--grad-cool);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ================================================================
+ * 页面容器
+ * ================================================================ */
+.page-wrap {
+  position: relative; z-index: 1;
+  max-width: 480px; margin: 0 auto;
+  padding: 20px 20px 40px;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column;
+}
+
+/* ================================================================
+ * 导航
+ * ================================================================ */
+.nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0 16px;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--c-orange);
+  box-shadow: 0 0 10px rgba(255,106,0,0.5);
+}
+.nav-label {
+  font-size: 0.75rem; font-weight: 500; color: var(--t-3);
+  letter-spacing: 0.03em;
+}
+
+/* ================================================================
+ * 按钮 v2
+ * ================================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 13px 28px; border: none; border-radius: var(--r-full);
+  font-size: 0.9375rem; font-weight: 600; cursor: pointer;
+  transition: all 0.3s var(--ease-out-expo);
+  text-decoration: none; position: relative; overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: var(--grad-brand);
+  color: white;
+  box-shadow: 0 4px 20px rgba(255,106,0,0.25);
+}
+.btn-primary:hover { box-shadow: 0 6px 30px rgba(255,106,0,0.4); transform: translateY(-1px); }
+
+.btn-glass {
+  background: rgba(255,255,255,0.05);
+  color: var(--t-1);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.btn-glass:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.btn-ghost {
+  background: transparent; color: var(--t-2);
+  padding: 10px 18px;
+}
+.btn-ghost:hover { color: var(--t-1); }
+
+.btn-lg { padding: 16px 36px; font-size: 1.0625rem; }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: 0.35; pointer-events: none; }
+
+/* ================================================================
+ * 玻璃卡片
+ * ================================================================ */
+.glass-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--r-xl);
+  padding: 28px;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  transition: all 0.4s var(--ease-out-expo);
+}
+.glass-card:hover {
+  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+}
+
+/* ================================================================
+ * 输入框 v2
+ * ================================================================ */
+.input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r-lg);
+  padding: 14px 18px;
+  color: var(--t-1);
+  font-size: 1rem; font-family: inherit;
+  transition: all 0.2s var(--ease-out-expo);
+  outline: none; resize: none;
+}
+.input:focus {
+  border-color: var(--c-orange);
+  box-shadow: 0 0 0 4px rgba(255,106,0,0.06);
+  background: rgba(255,255,255,0.06);
+}
+.input::placeholder { color: var(--t-muted); font-size: 0.9375rem; }
+
+/* ================================================================
+ * 动画
+ * ================================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,106,0,0.15); }
+  50% { box-shadow: 0 0 30px rgba(255,106,0,0.35); }
+}
+
+.anim-fade-up {
+  animation: fadeUp 0.7s var(--ease-out-expo) both;
+}
+.anim-scale-in {
+  animation: scaleIn 0.5s var(--ease-out-back) both;
+}
+.anim-slide-up {
+  animation: slideUp 0.8s var(--ease-out-expo) both;
+}
+
+/* 延迟工具类 */
+.d-1 { animation-delay: 0.06s; }
+.d-2 { animation-delay: 0.12s; }
+.d-3 { animation-delay: 0.18s; }
+.d-4 { animation-delay: 0.24s; }
+.d-5 { animation-delay: 0.30s; }
+.d-6 { animation-delay: 0.36s; }
+.d-7 { animation-delay: 0.42s; }
+
+/* ================================================================
+ * Toast
+ * ================================================================ */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.85); color: white;
+  padding: 10px 24px; border-radius: var(--r-full);
+  font-size: 0.875rem; font-weight: 500; z-index: 200;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: fadeUp 0.3s var(--ease-out-back), fadeIn 0.3s ease 2s forwards;
+}
+
+/* ================================================================
+ * 响应式
+ * ================================================================ */
+
+/* 平板 — 768px+ */
+@media (min-width: 768px) {
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 1.75rem; }
+  .page-wrap { max-width: 580px; padding: 28px 28px 48px; }
+  .btn { padding: 14px 32px; font-size: 1rem; }
+  .btn-lg { padding: 18px 40px; font-size: 1.125rem; }
+  .glass-card { padding: 36px; }
+}
+
+/* 桌面 — 1024px+ */
+@media (min-width: 1024px) {
+  h1 { font-size: 3rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.375rem; }
+  p  { font-size: 1.0625rem; }
+
+  .page-wrap {
+    max-width: 880px;
+    padding: 36px 40px 60px;
+  }
+
+  .nav-bar { padding: 12px 0 24px; }
+  .nav-label { font-size: 0.8125rem; }
+
+  .btn { padding: 15px 36px; font-size: 1.0625rem; }
+  .btn-lg { padding: 20px 48px; font-size: 1.1875rem; }
+  .btn-ghost { padding: 12px 22px; }
+
+  .glass-card { padding: 44px; border-radius: var(--r-2xl); }
+
+  .bg-grid { background-size: 80px 80px; }
+
+  /* 桌面光晕更大 */
+  .glow-orb-o { width: 700px; height: 700px; top: -300px; right: -200px; }
+  .glow-orb-b { width: 550px; height: 550px; bottom: -200px; left: -150px; }
+  .glow-orb-p { width: 450px; height: 450px; }
+}
+
+/* 大屏 — 1440px+ */
+@media (min-width: 1440px) {
+  .page-wrap { max-width: 960px; padding: 48px 60px 80px; }
+  h1 { font-size: 3.5rem; }
+  .bg-grid { background-size: 100px 100px; }
+}
+
+</style>
+<style>
+  .screen{display:none;flex-direction:column;min-height:100vh;min-height:100dvh}
+  .screen.on{display:flex}
+
+  /* === 开场 === */
+  .splash{justify-content:center;align-items:center;text-align:center;gap:40px;padding-top:8vh}
+  .splash-icon{font-size:72px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 40px rgba(255,106,0,0.3))}
+  .splash-title{font-size:2.5rem;font-weight:900;letter-spacing:-0.04em;line-height:1.1}
+  .splash-desc{font-size:1rem;color:var(--t-2);max-width:300px;line-height:1.9}
+  .style-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .style-chip{
+    padding:10px 18px;border-radius:var(--r-full);font-size:0.8125rem;cursor:pointer;
+    border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);
+    color:var(--t-2);transition:all 0.25s var(--ease-out-expo);white-space:nowrap;
+  }
+  .style-chip.on{
+    border-color:var(--c-orange);background:rgba(255,106,0,0.12);
+    color:var(--c-orange-bright);box-shadow:0 0 20px rgba(255,106,0,0.1);
+  }
+
+  /* === 上传 === */
+  .upload-screen{gap:24px;padding-top:20px}
+  .upload-zone{
+    width:100%;aspect-ratio:1;max-width:340px;margin:0 auto;
+    border:2px dashed rgba(255,255,255,0.1);border-radius:var(--r-2xl);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:16px;cursor:pointer;transition:all 0.4s var(--ease-out-expo);
+    background:rgba(255,255,255,0.02);position:relative;overflow:hidden;
+  }
+  .upload-zone:hover{border-color:rgba(255,106,0,0.4);background:rgba(255,106,0,0.03)}
+  .upload-zone.has-img{border-style:solid;border-color:rgba(255,106,0,0.5)}
+  .upload-zone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .upload-zone-icon{font-size:48px;opacity:0.5;transition:all 0.3s}
+  .upload-zone-text{font-size:0.9375rem;color:var(--t-3)}
+  .upload-actions{display:flex;gap:12px;max-width:340px;margin:0 auto;width:100%}
+  .upload-actions .btn{flex:1}
+
+  /* === 扫描 === */
+  .scan-screen{justify-content:center;align-items:center;text-align:center;gap:36px}
+  .scan-orb{
+    width:160px;height:160px;border-radius:50%;position:relative;
+    background:rgba(255,106,0,0.05);border:1px solid rgba(255,106,0,0.15);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .scan-ring{
+    position:absolute;inset:-20px;border-radius:50%;
+    border:1.5px solid rgba(255,106,0,0.2);
+    animation:scanExpand 2.2s ease-out infinite;
+  }
+  .scan-ring:nth-child(2){animation-delay:0.7s}
+  .scan-ring:nth-child(3){animation-delay:1.4s}
+  @keyframes scanExpand{
+    0%{transform:scale(0.6);opacity:0.6}
+    100%{transform:scale(1.6);opacity:0}
+  }
+  .scan-emoji{font-size:56px;position:relative;z-index:1;animation:float 2s ease-in-out infinite}
+  .scan-status{font-size:1rem;color:var(--t-2);letter-spacing:0.02em}
+
+  /* === 结果 === */
+  .result-screen-r{gap:24px;padding-bottom:120px}
+  .result-img-wrap{
+    width:220px;height:220px;margin:0 auto;border-radius:var(--r-xl);
+    overflow:hidden;position:relative;
+    box-shadow:0 0 0 1px rgba(255,106,0,0.15),0 20px 60px rgba(0,0,0,0.5);
+  }
+  .result-img-wrap img{width:100%;height:100%;object-fit:cover}
+  .result-img-wrap::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,0.5));
+  }
+  .monologue-card{
+    background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+    border-radius:var(--r-xl);padding:32px 28px;
+    position:relative;backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  }
+  .monologue-card::before{
+    content:'\201C';position:absolute;top:8px;left:20px;
+    font-size:72px;color:var(--c-orange);opacity:0.15;
+    font-family:Georgia,serif;line-height:1;
+  }
+  .monologue-text-r{
+    font-size:1.0625rem;line-height:2;color:var(--t-1);
+    padding-left:16px;font-style:italic;min-height:60px;
+  }
+  .monologue-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 14px;border-radius:var(--r-full);
+    font-size:0.75rem;background:rgba(255,106,0,0.1);
+    color:var(--c-orange-bright);margin-top:20px;
+  }
+  .result-actions-r{display:flex;gap:12px}
+  .result-actions-r .btn{flex:1}
+
+  /* === 底部固定 === */
+  .bottom-bar{
+    position:fixed;bottom:0;left:0;right:0;z-index:10;
+    padding:16px 20px calc(16px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(to top,var(--bg-base) 50%,transparent);
+    text-align:center;
+  }
+  .bottom-bar .slogan-tag{
+    font-size:0.8125rem;font-weight:600;
+    background:var(--grad-brand);-webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;background-clip:text;
+  }
+
+  #imageInput{display:none}
+
+  /* === Dots loading === */
+  .dots{display:flex;gap:5px;justify-content:center}
+  .dots span{width:6px;height:6px;border-radius:50%;background:var(--c-orange);animation:dotBounce 1.4s ease-in-out infinite both}
+  .dots span:nth-child(1){animation-delay:-0.32s}
+  .dots span:nth-child(2){animation-delay:-0.16s}
+  @keyframes dotBounce{0%,80%,100%{transform:scale(0.3);opacity:0.3}40%{transform:scale(1);opacity:1}}
+
+  /* === 桌面端 === */
+  @media (min-width: 768px) {
+    .splash-title{font-size:3rem}
+    .splash-icon{font-size:88px}
+    .upload-zone{max-width:420px}
+    .result-img-wrap{width:280px;height:280px}
+    .monologue-text-r{font-size:1.1875rem}
+  }
+  @media (min-width: 1024px) {
+    .splash{padding-top:12vh;gap:48px}
+    .splash-title{font-size:3.5rem}
+    .splash-icon{font-size:100px}
+    .upload-screen{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:32px}
+    .upload-screen h2,.upload-screen>p{width:100%}
+    .upload-zone{max-width:340px}
+    .upload-actions{max-width:500px}
+    .result-screen-r{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:28px}
+    .result-screen-r .nav-bar{width:100%}
+    .result-img-wrap{width:300px;height:300px;flex-shrink:0}
+    .monologue-card{flex:1;min-width:320px}
+    .result-actions-r{width:100%;max-width:640px;justify-content:center}
+    .result-screen-r .btn-ghost{width:100%;text-align:center}
+  }
+  @media (min-width: 1440px) {
+    .splash-title{font-size:4rem}
+    .upload-zone{max-width:400px}
+    .result-img-wrap{width:360px;height:360px}
+    .monologue-text-r{font-size:1.25rem}
+  }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="glow-orb glow-orb-o"></div>
+<div class="glow-orb glow-orb-b"></div>
+
+<!-- ====== 开场 ====== -->
+<div class="page-wrap screen on" id="splash">
+  <div class="nav-bar anim-fade-up">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">阿里云 × 千问</span></div>
+  </div>
+  <div class="splash">
+    <div class="splash-icon anim-scale-in">🔮</div>
+    <h1 class="splash-title anim-fade-up d-1">
+      <span class="text-gradient">万物皆有答案</span>
+    </h1>
+    <p class="splash-desc anim-fade-up d-2">
+      拍下身边任何一件物品<br>千问大模型将赋予它灵魂，<br>用你选的风格，讲述自己的故事
+    </p>
+    <div class="style-chips anim-fade-up d-3" id="styleChips">
+      <button class="style-chip on" data-s="literary">🎭 王家卫文艺</button>
+      <button class="style-chip" data-s="scifi">🚀 科幻未来</button>
+      <button class="style-chip" data-s="humor">🎪 脱口秀吐槽</button>
+      <button class="style-chip" data-s="poetic">🌸 诗意古风</button>
+    </div>
+  </div>
+  <div class="bottom-bar anim-fade-up d-4">
+    <button class="btn btn-primary btn-lg btn-block" onclick="goUpload()" style="max-width:360px;margin:0 auto">
+      拍一张，万物皆答 →
+    </button>
+  </div>
+</div>
+
+<!-- ====== 上传 ====== -->
+<div class="page-wrap screen" id="upload">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">万物皆有答案</span></div>
+    <button class="btn btn-ghost" onclick="goSplash()">← 返回</button>
+  </div>
+  <div class="upload-screen">
+    <h2 class="anim-fade-up" style="text-align:center;font-size:1.25rem">选一件身边的物品</h2>
+    <p class="anim-fade-up d-1" style="text-align:center;color:var(--t-3);font-size:0.875rem">
+      水杯 · 台灯 · 书 · 钥匙 · 盆栽 · 任何日常之物
+    </p>
+    <div class="upload-zone anim-fade-up d-2" id="zone" onclick="document.getElementById('imageInput').click()">
+      <span class="upload-zone-icon" id="zoneIcon">📷</span>
+      <span class="upload-zone-text" id="zoneText">点击拍照或选择照片</span>
+    </div>
+    <input type="file" id="imageInput" accept="image/*" capture="environment" onchange="onFile(event)">
+    <div class="upload-actions anim-fade-up d-3">
+      <button class="btn btn-glass" onclick="document.getElementById('imageInput').click()">🖼️ 相册</button>
+      <button class="btn btn-primary" id="btnGo" disabled onclick="goScan()">✨ 千问解析</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 扫描 ====== -->
+<div class="page-wrap screen" id="scan">
+  <div class="scan-screen">
+    <div class="scan-orb anim-scale-in">
+      <div class="scan-ring"></div><div class="scan-ring"></div><div class="scan-ring"></div>
+      <span class="scan-emoji">🔍</span>
+    </div>
+    <p class="scan-status anim-fade-up d-1" id="scanMsg">千问正在识别这个物品...</p>
+    <div class="dots anim-fade-up d-2"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<!-- ====== 结果 ====== -->
+<div class="page-wrap screen" id="result">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">千问大模型</span></div>
+  </div>
+  <div class="result-screen-r">
+    <div class="result-img-wrap anim-scale-in" id="resultImgWrap">
+      <img id="resultImg" src="" alt="">
+    </div>
+    <div class="monologue-card anim-fade-up d-1">
+      <p class="monologue-text-r" id="monoText"></p>
+      <span class="monologue-tag" id="monoTag"></span>
+    </div>
+    <div class="result-actions-r anim-fade-up d-2">
+      <button class="btn btn-glass" onclick="retry()">🎭 换个风格</button>
+      <button class="btn btn-primary" onclick="share()">📤 分享</button>
+    </div>
+    <button class="btn btn-ghost anim-fade-up d-3" onclick="goUpload()" style="align-self:center">🔄 再拍一张</button>
+  </div>
+  <div class="bottom-bar">
+    <span class="slogan-tag">千问一下，万物皆答</span>
+    <span style="color:var(--t-3);margin-left:8px;font-size:0.75rem">— 阿里云千问大模型</span>
+  </div>
+</div>
+
+<script>
+/* === 内联自 shared/utils.js === */
+/* === 大广赛阿里云命题 · 共享工具函数 === */
+
+/**
+ * Toast 提示
+ */
+function showToast(message, duration = 2000) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), duration + 300);
+}
+
+/**
+ * 复制到剪贴板
+ */
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('已复制到剪贴板');
+    return true;
+  } catch {
+    // 降级方案
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+    showToast('已复制到剪贴板');
+    return true;
+  }
+}
+
+/**
+ * 分享（优先使用 Web Share API）
+ */
+async function shareContent(title, text, url) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+      return;
+    } catch (e) {
+      // 用户取消分享
+    }
+  }
+  // 降级：展示自定义分享面板
+  showSharePanel(title, text, url);
+}
+
+/**
+ * 展示自定义分享面板
+ */
+function showSharePanel(title, text, url) {
+  const overlay = document.createElement('div');
+  overlay.className = 'share-overlay';
+  overlay.innerHTML = `
+    <div class="share-panel slide-up">
+      <h3>分享作品</h3>
+      <div class="share-options">
+        <div class="share-option" data-action="wechat">
+          <div class="share-icon" style="background:#07C160">💬</div>
+          <span>微信</span>
+        </div>
+        <div class="share-option" data-action="weibo">
+          <div class="share-icon" style="background:#E6162D">📢</div>
+          <span>微博</span>
+        </div>
+        <div class="share-option" data-action="copy">
+          <div class="share-icon" style="background:#333">📋</div>
+          <span>复制链接</span>
+        </div>
+        <div class="share-option" data-action="more">
+          <div class="share-icon" style="background:#666">⋯</div>
+          <span>更多</span>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-block" style="margin-top:24px" onclick="this.closest('.share-overlay').remove()">
+        取消
+      </button>
+    </div>
+  `;
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+    const action = e.target.closest('.share-option')?.dataset.action;
+    if (action === 'copy') copyToClipboard(url || window.location.href);
+    if (action === 'weibo') window.open(`https://service.weibo.com/share/share.php?title=${encodeURIComponent(title + ' ' + text)}&url=${encodeURIComponent(url || window.location.href)}`);
+    if (action) overlay.remove();
+  });
+
+  document.body.appendChild(overlay);
+}
+
+/**
+ * 创建粒子背景
+ */
+function createParticles(count = 30) {
+  const container = document.createElement('div');
+  container.className = 'particles-bg';
+
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.width = (Math.random() * 4 + 2) + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+    particle.style.animationDelay = (Math.random() * 10) + 's';
+    // 随机混合橘色和蓝色
+    if (Math.random() > 0.5) {
+      particle.style.background = 'var(--brand-blue)';
+    }
+    container.appendChild(particle);
+  }
+
+  return container;
+}
+
+/**
+ * 创建光晕背景
+ */
+function createGlowOrbs() {
+  const fragment = document.createDocumentFragment();
+  const orb1 = document.createElement('div');
+  orb1.className = 'glow-orb glow-orb-orange';
+  const orb2 = document.createElement('div');
+  orb2.className = 'glow-orb glow-orb-blue';
+  fragment.appendChild(orb1);
+  fragment.appendChild(orb2);
+  return fragment;
+}
+
+/**
+ * 打字机效果
+ */
+async function typewriterEffect(element, text, speed = 50) {
+  element.textContent = '';
+  element.style.borderRight = '2px solid var(--brand-orange)';
+  for (let i = 0; i < text.length; i++) {
+    element.textContent += text[i];
+    await new Promise(r => setTimeout(r, speed + Math.random() * 30));
+  }
+  element.style.borderRight = 'none';
+}
+
+/**
+ * 延迟函数
+ */
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * 随机选择
+ */
+function randomPick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * 生成唯一ID
+ */
+function generateId() {
+  return 'dgs_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
+}
+
+/**
+ * 获取URL参数
+ */
+function getQueryParam(key) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(key);
+}
+
+/* ================================================================
+ * 阿里云百炼平台 API 集成
+ * ================================================================
+ *
+ * 使用前请完成以下步骤：
+ * 1. 领取300元算力：https://university.aliyun.com/action/sun-ada
+ * 2. 获取API Key：https://bailian.console.aliyun.com/ → 开通百炼 →
+ *    右上角头像 → API-KEY管理 → 创建新的API Key
+ * 3. 将API Key填入下方 DASHSCOPE_API_KEY 常量
+ * 4. 取消注释真实API调用代码，注释掉演示数据返回
+ *
+ * 文档：https://help.aliyun.com/zh/model-studio/
+ * 兼容模式文档：https://help.aliyun.com/zh/model-studio/use-qwen-by-calling-api
+ */
+
+// ===== 配置区域 =====
+const DASHSCOPE_API_KEY = 'sk-cb0ec1cc42fa412b83a934ebf2f43f81';
+const DASHSCOPE_BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+
+// 模型配置
+const MODELS = {
+  text: 'qwen-max',           // 文本生成（最强版）
+  vision: 'qwen-vl-max',      // 多模态视觉识别
+  code: 'qwen-coder-plus',    // 代码专用
+};
+
+/**
+ * 千问API调用（真实实现）
+ *
+ * @param {string} prompt - 用户提示词
+ * @param {Object} options
+ * @param {string} options.systemPrompt - 系统提示词（角色设定）
+ * @param {number} options.temperature - 温度 (0-2)，默认0.8
+ * @param {string} options.model - 模型名，默认qwen-max
+ * @returns {Promise<string|null>} AI返回的文本，失败或未配置时返回null
+ */
+async function callQianwenAPI(prompt, options = {}) {
+  // 未配置API Key时，返回null让调用方使用演示数据
+  if (!DASHSCOPE_API_KEY) {
+    console.warn('[千问API] 未配置API Key，使用演示数据。请在 shared/utils.js 中设置 DASHSCOPE_API_KEY');
+    return null;
+  }
+
+  const messages = [];
+  if (options.systemPrompt) {
+    messages.push({ role: 'system', content: options.systemPrompt });
+  }
+  messages.push({ role: 'user', content: prompt });
+
+  try {
+    const response = await fetch(`${DASHSCOPE_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DASHSCOPE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: options.model || MODELS.text,
+        messages: messages,
+        temperature: options.temperature ?? 0.8,
+        max_tokens: options.maxTokens || 2000,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('[千问API] 请求失败:', response.status, errorData);
+      return null;
+    }
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content || '';
+    console.log('[千问API] 成功获取响应，长度:', text.length);
+    return text;
+  } catch (error) {
+    console.error('[千问API] 网络错误:', error.message);
+    return null;
+  }
+}
+
+/**
+ * 千问多模态视觉识别API
+ * 上传图片并让千问识别图片内容
+ *
+ * @param {string} imageBase64 - 图片的base64编码（不含data:前缀）
+ * @param {string} prompt - 对图片的提问
+ * @returns {Promise<string|null>} 识别结果
+ */
+async function callQianwenVisionAPI(imageBase64, prompt) {
+  if (!DASHSCOPE_API_KEY) {
+    console.warn('[千问视觉API] 未配置API Key');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${DASHSCOPE_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DASHSCOPE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: MODELS.vision,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
+            { type: 'text', text: prompt },
+          ],
+        }],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('[千问视觉API] 请求失败:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch (error) {
+    console.error('[千问视觉API] 网络错误:', error.message);
+    return null;
+  }
+}
+
+/**
+ * 调用千问API并重试（带指数退避）
+ */
+async function callQianwenAPIWithRetry(prompt, options = {}, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const result = await callQianwenAPI(prompt, options);
+    if (result !== null) return result;
+    if (attempt < maxRetries - 1) {
+      const waitMs = Math.pow(2, attempt) * 1000;
+      console.log(`[千问API] 第${attempt + 1}次重试，等待${waitMs}ms...`);
+      await delay(waitMs);
+    }
+  }
+  return null;
+}
+
+/**
+ * 万相API调用封装
+ * 文档: https://help.aliyun.com/zh/model-studio/wanxiang
+ *
+ * @param {string} prompt - 生成图像的描述
+ * @param {string} type - 'text2img' | 'img2video' 等
+ * @returns {Promise<string|null>} 生成的图片URL或null
+ */
+async function callWanxiangAPI(prompt, type = 'text2img') {
+  if (!DASHSCOPE_API_KEY) {
+    console.warn('[万相API] 未配置API Key');
+    return null;
+  }
+
+  // 万相文生图API
+  if (type === 'text2img') {
+    try {
+      const response = await fetch('https://dashscope.aliyuncs.com/api/v1/services/aigc/image-generation/generation', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${DASHSCOPE_API_KEY}`,
+          'Content-Type': 'application/json',
+          'X-DashScope-Async': 'enable',
+        },
+        body: JSON.stringify({
+          model: 'wanx-v1',
+          input: {
+            prompt: prompt,
+            negative_prompt: '低质量，模糊，变形',
+          },
+          parameters: {
+            n: 1,
+            size: '1024*1024',
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('[万相API] 请求失败:', response.status);
+        return null;
+      }
+
+      const data = await response.json();
+      // 异步任务，返回task_id用于后续查询
+      if (data.output?.task_id) {
+        console.log('[万相API] 异步任务已创建:', data.output.task_id);
+        return await pollWanxiangTask(data.output.task_id);
+      }
+      return null;
+    } catch (error) {
+      console.error('[万相API] 网络错误:', error.message);
+      return null;
+    }
+  }
+
+  console.warn('[万相API] 不支持的类型:', type);
+  return null;
+}
+
+/**
+ * 轮询万相异步任务结果
+ */
+async function pollWanxiangTask(taskId, maxAttempts = 30, interval = 2000) {
+  for (let i = 0; i < maxAttempts; i++) {
+    await delay(interval);
+    try {
+      const response = await fetch(
+        `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`,
+        { headers: { 'Authorization': `Bearer ${DASHSCOPE_API_KEY}` } }
+      );
+      const data = await response.json();
+
+      if (data.output?.task_status === 'SUCCEEDED') {
+        return data.output.results?.[0]?.url || null;
+      }
+      if (data.output?.task_status === 'FAILED') {
+        console.error('[万相API] 任务失败:', data.output.message);
+        return null;
+      }
+      // 继续轮询
+    } catch (error) {
+      console.error('[万相API] 轮询错误:', error.message);
+    }
+  }
+  console.error('[万相API] 轮询超时');
+  return null;
+}
+
+</script>
+<script>
+const $ = id => document.getElementById(id);
+const S = {
+  style: 'literary',
+  image: null,
+  mono: '',
+  objType: ''
+};
+
+// === 风格配置 ===
+const STYLES = {
+  literary: {
+    name: '王家卫文艺', emoji: '🎭',
+    prompt: '你是一个被赋予灵魂的日常物品。用王家卫电影般的文艺腔调，以第一人称讲述你的存在。语速缓慢，充满意象和细节（如时间、温度、光线），带着温柔的孤独感。150字以内，让人读完后想截图分享。'
+  },
+  scifi: {
+    name: '科幻未来', emoji: '🚀',
+    prompt: '你是一个来自未来的智能物品，拥有超越时代的自我意识。用科幻小说的语气，以第一人称介绍你的功能和使命。使用技术术语但保持诗意，充满未来主义色彩。150字以内。'
+  },
+  humor: {
+    name: '脱口秀吐槽', emoji: '🎪',
+    prompt: '你是一个会吐槽的日常物品，用脱口秀演员的方式，以第一人称调侃自己的日常和与人类的相处。幽默风趣，有梗，让人会心一笑。150字以内。'
+  },
+  poetic: {
+    name: '诗意古风', emoji: '🌸',
+    prompt: '你是一个拥有古典灵魂的物品，用中国古风诗意的方式，以第一人称吟诵你的存在。半文半白，有意境，有留白，像一首小诗。融入传统文化意象。150字以内。'
+  }
+};
+
+// === 导航 ===
+function goScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  $(id).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goSplash() { goScreen('splash'); }
+function goUpload() {
+  S.image = null; S.mono = '';
+  $('zone').classList.remove('has-img');
+  $('zoneIcon').style.display = '';
+  $('zoneText').textContent = '点击拍照或选择照片';
+  $('btnGo').disabled = true;
+  const old = $('zone').querySelector('img');
+  if (old) old.remove();
+  goScreen('upload');
+}
+function goScan() { goScreen('scan'); }
+
+// === 风格选择 ===
+$('styleChips').addEventListener('click', e => {
+  const c = e.target.closest('.style-chip');
+  if (!c) return;
+  $('styleChips').querySelectorAll('.style-chip').forEach(x => x.classList.remove('on'));
+  c.classList.add('on');
+  S.style = c.dataset.s;
+});
+
+// === 图片 ===
+function onFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    S.image = ev.target.result;
+    const old = $('zone').querySelector('img');
+    if (old) old.remove();
+    const img = document.createElement('img');
+    img.src = S.image;
+    $('zone').appendChild(img);
+    $('zone').classList.add('has-img');
+    $('zoneIcon').style.display = 'none';
+    $('zoneText').textContent = '点击更换照片';
+    $('btnGo').disabled = false;
+  };
+  r.readAsDataURL(f);
+  S.fileName = f.name;
+}
+
+// === 核心：AI分析 ===
+async function goScan() {
+  if (!S.image) return;
+  goScreen('scan');
+
+  const msgs = [
+    '千问正在识别物品...',
+    '分析形态与材质...',
+    '理解物品的故事语境...',
+    '注入' + STYLES[S.style].name + '灵魂...',
+    '生成独白中...'
+  ];
+  for (let i = 0; i < msgs.length; i++) {
+    $('scanMsg').textContent = msgs[i];
+    await delay(600 + Math.random() * 500);
+  }
+
+  // 真实千问API
+  const objType = guessObj(S.fileName || '');
+  S.objType = objType;
+  const styleData = STYLES[S.style];
+  const prompt = `请以第一人称写一段独白。物品是：${objType}。要求：${styleData.prompt}`;
+
+  const aiResp = await callQianwenAPI(prompt, {
+    systemPrompt: styleData.prompt,
+    temperature: 0.9,
+    maxTokens: 400
+  });
+
+  S.mono = aiResp || getDemo(objType, S.style);
+  S.objType = objType;
+
+  $('resultImg').src = S.image;
+  typeText($('monoText'), S.mono);
+  $('monoTag').textContent = styleData.emoji + ' ' + styleData.name + '风格';
+
+  await delay(400);
+  goScreen('result');
+}
+
+// === 打字效果 ===
+async function typeText(el, text) {
+  el.textContent = '';
+  for (let i = 0; i < text.length; i++) {
+    el.textContent += text[i];
+    if (i % 3 === 0) await delay(15);
+  }
+}
+
+// === 换风格 ===
+async function retry() {
+  const keys = Object.keys(STYLES);
+  const idx = (keys.indexOf(S.style) + 1) % keys.length;
+  S.style = keys[idx];
+  $('styleChips').querySelectorAll('.style-chip').forEach(c => c.classList.toggle('on', c.dataset.s === S.style));
+  goScreen('scan');
+  $('scanMsg').textContent = '用' + STYLES[S.style].name + '重新演绎...';
+  await delay(1200);
+
+  const sd = STYLES[S.style];
+  const prompt = `请以第一人称写一段独白。物品是一个${S.objType || '日常物品'}。${sd.prompt}`;
+  const aiResp = await callQianwenAPI(prompt, { systemPrompt: sd.prompt, temperature: 0.9, maxTokens: 400 });
+  S.mono = aiResp || getDemo(S.objType, S.style);
+  typeText($('monoText'), S.mono);
+  $('monoTag').textContent = sd.emoji + ' ' + sd.name + '风格';
+  await delay(300);
+  goScreen('result');
+}
+
+// === 分享 ===
+async function share() {
+  await shareContent(
+    '万物皆有答案 - 千问大模型',
+    `千问了一下，万物皆有答案 ✨\n「${S.mono}」\n—— 阿里云千问大模型 × 第18届大广赛`,
+    window.location.href
+  );
+}
+
+// === 辅助 ===
+function guessObj(name) {
+  const m = {
+    '杯|cup|mug|coffee|tea|drink': '一个马克杯',
+    '花|植物|plant|flower|leaf|绿|grass': '一盆绿植',
+    '键盘|keyboard|key|键': '一个机械键盘',
+    '灯|lamp|light|光': '一盏台灯',
+    '手机|phone|iphone': '一部手机',
+    '书|book|read': '一本书',
+    '笔|pen|pencil|write': '一支笔',
+    '耳机|headphone|earphone|airpod': '一副耳机',
+    '眼镜|glass|spec': '一副眼镜',
+    '手表|watch': '一块手表',
+  };
+  const n = (name || '').toLowerCase();
+  for (const [k, v] of Object.entries(m)) {
+    if (new RegExp(k).test(n)) return v;
+  }
+  const all = ['一个马克杯','一盆绿植','一个机械键盘','一盏台灯','一部手机','一本书','一副耳机'];
+  return all[Math.floor(Math.random() * all.length)];
+}
+
+function getDemo(obj, style) {
+  const d = {
+    literary: {
+      '马克杯': '每天下午三点，她准时端起我。水温刚好，45度，她最喜欢的温度。我看着她的嘴唇轻轻碰到杯沿，那一瞬间，整个世界都安静下来。有些温度，不是用来测量的，是用来记住的。',
+      '绿植': '我站在窗台上看了他三年。他每天早晨打开窗帘的时候，是我最期待的一秒。他从来不知道，我偷偷把他的咖啡香存进了每一片叶子里。',
+    },
+  };
+  const fallback = '我就这样存在着，日复一日。被使用，被放置，被偶尔注视。但我有自己的温度，自己的节奏。你不必知道，因为我的故事，只属于我。';
+  return d[style]?.[obj] || d.literary?.[obj] || fallback;
+}
+
+// init
+goScreen('splash');
+</script>
+</body>
+</html>
