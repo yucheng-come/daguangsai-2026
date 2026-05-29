@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>你的新同事不是人 - 千问大模型</title>
+<style>
+/* === 内联自 shared/styles.css === */
+/* ================================================================
+ * 大广赛阿里云命题 · 设计系统 v2
+ * 设计方向：暗色科技 + 玻璃质感 + 精緻动效
+ * ================================================================ */
+
+:root {
+  /* === 主色调 === */
+  --c-orange: #FF6A00;
+  --c-orange-bright: #FF8C3A;
+  --c-blue: #0068FF;
+  --c-blue-bright: #3B82F6;
+  --c-purple: #8B5CF6;
+  --c-cyan: #06B6D4;
+
+  /* === 渐变 === */
+  --grad-brand: linear-gradient(135deg, #FF6A00 0%, #FF3D00 40%, #0068FF 100%);
+  --grad-warm: linear-gradient(135deg, #FF6A00, #F97316, #EF4444);
+  --grad-cool: linear-gradient(135deg, #0068FF, #3B82F6, #8B5CF6);
+  --grad-subtle: linear-gradient(180deg, rgba(255,106,0,0.06) 0%, rgba(0,104,255,0.06) 100%);
+
+  /* === 背景 === */
+  --bg-deep: #06080D;
+  --bg-base: #0A0E1A;
+  --bg-surface: #111827;
+  --bg-card: rgba(17, 24, 39, 0.6);
+  --bg-glass: rgba(255, 255, 255, 0.03);
+
+  /* === 文字 === */
+  --t-1: #FFFFFF;
+  --t-2: rgba(255, 255, 255, 0.65);
+  --t-3: rgba(255, 255, 255, 0.35);
+  --t-muted: rgba(255, 255, 255, 0.15);
+
+  /* === 边框 === */
+  --b-subtle: rgba(255, 255, 255, 0.06);
+  --b-card: rgba(255, 255, 255, 0.08);
+  --b-focus: rgba(255, 106, 0, 0.4);
+
+  /* === 圆角 === */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-2xl: 32px;
+  --r-full: 9999px;
+
+  /* === 阴影 === */
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  --shadow-glow-o: 0 0 30px rgba(255,106,0,0.15);
+  --shadow-glow-b: 0 0 30px rgba(0,104,255,0.15);
+  --shadow-glow-p: 0 0 30px rgba(139,92,246,0.15);
+
+  /* === 缓动 === */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ================================================================
+ * 基础重置
+ * ================================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-deep);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg-base);
+  color: var(--t-1);
+  line-height: 1.6;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ================================================================
+ * 动态网格背景
+ * ================================================================ */
+.bg-grid {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 20%, transparent 70%);
+}
+
+/* ================================================================
+ * 光晕
+ * ================================================================ */
+.glow-orb {
+  position: fixed; border-radius: 50%; filter: blur(100px);
+  pointer-events: none; z-index: 0; opacity: 0.12;
+  animation: orbBreath 8s ease-in-out infinite;
+}
+.glow-orb-o {
+  width: 500px; height: 500px;
+  background: var(--c-orange);
+  top: -200px; right: -150px;
+  animation-delay: 0s;
+}
+.glow-orb-b {
+  width: 400px; height: 400px;
+  background: var(--c-blue);
+  bottom: -150px; left: -100px;
+  animation-delay: -4s;
+}
+.glow-orb-p {
+  width: 300px; height: 300px;
+  background: var(--c-purple);
+  top: 40%; left: 50%;
+  animation-delay: -2s;
+}
+@keyframes orbBreath {
+  0%, 100% { opacity: 0.08; transform: scale(1) translate(0, 0); }
+  33% { opacity: 0.14; transform: scale(1.1) translate(30px, -20px); }
+  66% { opacity: 0.06; transform: scale(0.9) translate(-20px, 30px); }
+}
+
+/* ================================================================
+ * 排版
+ * ================================================================ */
+h1 { font-size: 2.125rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; }
+h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; }
+h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.35; }
+p  { color: var(--t-2); font-size: 0.9375rem; line-height: 1.7; }
+
+.text-gradient {
+  background: var(--grad-brand);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-warm {
+  background: var(--grad-warm);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-cool {
+  background: var(--grad-cool);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ================================================================
+ * 页面容器
+ * ================================================================ */
+.page-wrap {
+  position: relative; z-index: 1;
+  max-width: 480px; margin: 0 auto;
+  padding: 20px 20px 40px;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column;
+}
+
+/* ================================================================
+ * 导航
+ * ================================================================ */
+.nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0 16px;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--c-orange);
+  box-shadow: 0 0 10px rgba(255,106,0,0.5);
+}
+.nav-label {
+  font-size: 0.75rem; font-weight: 500; color: var(--t-3);
+  letter-spacing: 0.03em;
+}
+
+/* ================================================================
+ * 按钮 v2
+ * ================================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 13px 28px; border: none; border-radius: var(--r-full);
+  font-size: 0.9375rem; font-weight: 600; cursor: pointer;
+  transition: all 0.3s var(--ease-out-expo);
+  text-decoration: none; position: relative; overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: var(--grad-brand);
+  color: white;
+  box-shadow: 0 4px 20px rgba(255,106,0,0.25);
+}
+.btn-primary:hover { box-shadow: 0 6px 30px rgba(255,106,0,0.4); transform: translateY(-1px); }
+
+.btn-glass {
+  background: rgba(255,255,255,0.05);
+  color: var(--t-1);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.btn-glass:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.btn-ghost {
+  background: transparent; color: var(--t-2);
+  padding: 10px 18px;
+}
+.btn-ghost:hover { color: var(--t-1); }
+
+.btn-lg { padding: 16px 36px; font-size: 1.0625rem; }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: 0.35; pointer-events: none; }
+
+/* ================================================================
+ * 玻璃卡片
+ * ================================================================ */
+.glass-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--r-xl);
+  padding: 28px;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  transition: all 0.4s var(--ease-out-expo);
+}
+.glass-card:hover {
+  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+}
+
+/* ================================================================
+ * 输入框 v2
+ * ================================================================ */
+.input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r-lg);
+  padding: 14px 18px;
+  color: var(--t-1);
+  font-size: 1rem; font-family: inherit;
+  transition: all 0.2s var(--ease-out-expo);
+  outline: none; resize: none;
+}
+.input:focus {
+  border-color: var(--c-orange);
+  box-shadow: 0 0 0 4px rgba(255,106,0,0.06);
+  background: rgba(255,255,255,0.06);
+}
+.input::placeholder { color: var(--t-muted); font-size: 0.9375rem; }
+
+/* ================================================================
+ * 动画
+ * ================================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,106,0,0.15); }
+  50% { box-shadow: 0 0 30px rgba(255,106,0,0.35); }
+}
+
+.anim-fade-up {
+  animation: fadeUp 0.7s var(--ease-out-expo) both;
+}
+.anim-scale-in {
+  animation: scaleIn 0.5s var(--ease-out-back) both;
+}
+.anim-slide-up {
+  animation: slideUp 0.8s var(--ease-out-expo) both;
+}
+
+/* 延迟工具类 */
+.d-1 { animation-delay: 0.06s; }
+.d-2 { animation-delay: 0.12s; }
+.d-3 { animation-delay: 0.18s; }
+.d-4 { animation-delay: 0.24s; }
+.d-5 { animation-delay: 0.30s; }
+.d-6 { animation-delay: 0.36s; }
+.d-7 { animation-delay: 0.42s; }
+
+/* ================================================================
+ * Toast
+ * ================================================================ */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.85); color: white;
+  padding: 10px 24px; border-radius: var(--r-full);
+  font-size: 0.875rem; font-weight: 500; z-index: 200;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: fadeUp 0.3s var(--ease-out-back), fadeIn 0.3s ease 2s forwards;
+}
+
+/* ================================================================
+ * 响应式
+ * ================================================================ */
+
+/* 平板 — 768px+ */
+@media (min-width: 768px) {
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 1.75rem; }
+  .page-wrap { max-width: 580px; padding: 28px 28px 48px; }
+  .btn { padding: 14px 32px; font-size: 1rem; }
+  .btn-lg { padding: 18px 40px; font-size: 1.125rem; }
+  .glass-card { padding: 36px; }
+}
+
+/* 桌面 — 1024px+ */
+@media (min-width: 1024px) {
+  h1 { font-size: 3rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.375rem; }
+  p  { font-size: 1.0625rem; }
+
+  .page-wrap {
+    max-width: 880px;
+    padding: 36px 40px 60px;
+  }
+
+  .nav-bar { padding: 12px 0 24px; }
+  .nav-label { font-size: 0.8125rem; }
+
+  .btn { padding: 15px 36px; font-size: 1.0625rem; }
+  .btn-lg { padding: 20px 48px; font-size: 1.1875rem; }
+  .btn-ghost { padding: 12px 22px; }
+
+  .glass-card { padding: 44px; border-radius: var(--r-2xl); }
+
+  .bg-grid { background-size: 80px 80px; }
+
+  /* 桌面光晕更大 */
+  .glow-orb-o { width: 700px; height: 700px; top: -300px; right: -200px; }
+  .glow-orb-b { width: 550px; height: 550px; bottom: -200px; left: -150px; }
+  .glow-orb-p { width: 450px; height: 450px; }
+}
+
+/* 大屏 — 1440px+ */
+@media (min-width: 1440px) {
+  .page-wrap { max-width: 960px; padding: 48px 60px 80px; }
+  h1 { font-size: 3.5rem; }
+  .bg-grid { background-size: 100px 100px; }
+}
+
+</style>
+<style>
+  .screen{display:none;flex-direction:column;min-height:100vh;min-height:100dvh}
+  .screen.on{display:flex}
+
+  /* === 开场 === */
+  .splash-p2{justify-content:center;align-items:center;text-align:center;gap:32px;padding-top:8vh}
+  .badge-p2{
+    display:inline-block;padding:6px 16px;border-radius:var(--r-full);
+    font-size:0.75rem;font-weight:600;letter-spacing:0.04em;
+    background:rgba(0,104,255,0.1);color:var(--c-blue-bright);
+    border:1px solid rgba(0,104,255,0.2);
+  }
+  .splash-icon-p2{font-size:80px;animation:float 3.5s ease-in-out infinite;filter:drop-shadow(0 0 40px rgba(0,104,255,0.3))}
+  .colleague-cards{display:flex;align-items:center;gap:20px;justify-content:center}
+  .c-card{
+    width:72px;height:72px;border-radius:var(--r-lg);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2rem;background:var(--bg-glass);
+    border:1px solid rgba(255,255,255,0.06);
+    transition:all 0.4s var(--ease-out-expo);
+  }
+  .c-card.ai{
+    border-color:rgba(255,106,0,0.3);
+    background:rgba(255,106,0,0.06);
+    animation:pulse-glow 2.5s ease-in-out infinite;
+  }
+  .c-plus{font-size:1.5rem;font-weight:700;color:var(--t-3)}
+
+  /* === 任务屏 === */
+  .task-screen-p2{gap:20px;padding-top:8px}
+  .task-progress-bar{
+    display:flex;gap:3px;width:100%;
+  }
+  .tpb-dot{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.06);transition:all 0.5s var(--ease-out-expo)}
+  .tpb-dot.done{background:var(--c-orange)}
+  .tpb-dot.cur{background:var(--c-orange);box-shadow:0 0 8px rgba(255,106,0,0.4)}
+  .task-header-p2{text-align:center}
+  .task-num{font-size:0.7rem;font-weight:600;letter-spacing:0.06em;color:var(--t-3);text-transform:uppercase;margin-bottom:4px}
+  .task-name{font-size:1.25rem;font-weight:700}
+  .task-brief-card{
+    background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+    border-radius:var(--r-lg);padding:20px;text-align:center;
+  }
+  .task-brief-card p{font-size:0.875rem;color:var(--t-2)}
+  .output-panel{
+    background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);
+    border-radius:var(--r-lg);padding:24px;min-height:160px;
+  }
+  .output-panel.loading-state{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--t-3);
+  }
+  .output-content{
+    font-size:0.875rem;line-height:1.9;color:var(--t-1);
+    white-space:pre-wrap;font-family:'SF Mono','Menlo','Monaco',monospace;
+  }
+  .task-actions-p2{display:flex;gap:10px}
+  .task-actions-p2 .btn{flex:1}
+
+  /* === 结果 === */
+  .result-p2{gap:24px;align-items:center;padding-bottom:120px}
+  .result-hero{text-align:center;width:100%}
+  .radar-wrap{
+    width:260px;height:260px;margin:0 auto;position:relative;
+  }
+  .radar-wrap canvas{width:100%;height:100%}
+  .score-row{
+    display:flex;gap:24px;justify-content:center;margin:16px 0;
+  }
+  .score-item{text-align:center}
+  .score-val{font-size:2rem;font-weight:800;color:var(--c-blue-bright)}
+  .score-lbl{font-size:0.7rem;color:var(--t-3);letter-spacing:0.04em}
+  .skill-row{
+    display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  }
+  .skill-badge{
+    padding:8px 16px;border-radius:var(--r-full);
+    font-size:0.75rem;font-weight:500;
+    background:rgba(0,104,255,0.06);color:var(--c-blue-bright);
+    border:1px solid rgba(0,104,255,0.12);
+  }
+  .verdict-card{
+    background:rgba(255,106,0,0.03);border:1px solid rgba(255,106,0,0.12);
+    border-radius:var(--r-xl);padding:32px;text-align:center;width:100%;
+    backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  }
+  .verdict-title{font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
+
+  .dots-p2{display:flex;gap:5px;justify-content:center}
+  .dots-p2 span{width:6px;height:6px;border-radius:50%;background:var(--c-blue);animation:dotBounce 1.4s ease-in-out infinite both}
+  .dots-p2 span:nth-child(1){animation-delay:-0.32s}
+  .dots-p2 span:nth-child(2){animation-delay:-0.16s}
+  @keyframes dotBounce{0%,80%,100%{transform:scale(0.3);opacity:0.3}40%{transform:scale(1);opacity:1}}
+
+  /* === 桌面端 === */
+  @media (min-width: 768px) {
+    .c-card{width:88px;height:88px;font-size:2.5rem}
+    .radar-wrap{width:320px;height:320px}
+    .output-panel{min-height:200px;padding:32px}
+    .output-content{font-size:0.9375rem}
+    .verdict-title{font-size:2rem}
+  }
+  @media (min-width: 1024px) {
+    .splash-p2{gap:40px}
+    .task-screen-p2{
+      display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto auto;gap:20px;align-items:start;
+    }
+    .task-screen-p2 .task-progress-bar{grid-column:1/-1}
+    .task-screen-p2 .task-header-p2{grid-column:1}
+    .task-screen-p2 .task-brief-card{grid-column:2;grid-row:3;margin:0}
+    .task-screen-p2 .output-panel{grid-column:1;grid-row:4;min-height:280px}
+    .task-screen-p2 .task-actions-p2{grid-column:2;grid-row:4;align-self:end;flex-direction:column}
+    .result-p2{
+      display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;
+    }
+    .result-p2 .result-hero{grid-column:1/-1}
+    .result-p2 .score-row{grid-column:1}
+    .result-p2 .radar-wrap{grid-column:2;grid-row:3/5;width:380px;height:380px}
+    .result-p2 .skill-row{grid-column:1}
+    .result-p2 .verdict-card{grid-column:1/-1}
+    .result-p2 .task-actions-p2{grid-column:1/-1}
+    .radar-wrap{width:360px;height:360px}
+    .verdict-title{font-size:2.25rem}
+  }
+  @media (min-width: 1440px) {
+    .radar-wrap{width:420px;height:420px}
+    .task-screen-p2{max-width:800px;margin:0 auto}
+    .result-p2{max-width:800px;margin:0 auto}
+  }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="glow-orb glow-orb-o"></div>
+<div class="glow-orb glow-orb-b"></div>
+
+<!-- ====== 开场 ====== -->
+<div class="page-wrap screen on" id="splash">
+  <div class="nav-bar anim-fade-up">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">阿里云 × 千问</span></div>
+  </div>
+  <div class="splash-p2">
+    <span class="badge-p2 anim-scale-in">🧪 沉浸式互动测试</span>
+    <h1 class="anim-fade-up d-1" style="font-size:2.25rem;font-weight:900;letter-spacing:-0.04em;line-height:1.15;text-align:center">
+      你的<span class="text-gradient">新同事</span><br>不是人
+    </h1>
+    <p class="anim-fade-up d-2" style="color:var(--t-2);max-width:300px;text-align:center">
+      千问大模型正式入职你的团队<br>作为Team Leader，完成6项入职测试<br>看看这位AI同事到底几斤几两
+    </p>
+    <div class="colleague-cards anim-scale-in d-3">
+      <div class="c-card">👤</div>
+      <span class="c-plus">+</span>
+      <div class="c-card ai">🤖</div>
+    </div>
+  </div>
+  <div class="bottom-bar anim-fade-up d-4">
+    <button class="btn btn-primary btn-lg btn-block" onclick="start()" style="max-width:360px;margin:0 auto">
+      🚀 开始入职测试
+    </button>
+  </div>
+</div>
+
+<!-- ====== 任务 ====== -->
+<div class="page-wrap screen" id="task">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">入职测试 · <span id="ti">1</span>/6</span></div>
+  </div>
+  <div class="task-screen-p2">
+    <div class="task-progress-bar" id="tpb">
+      <div class="tpb-dot cur"></div><div class="tpb-dot"></div><div class="tpb-dot"></div>
+      <div class="tpb-dot"></div><div class="tpb-dot"></div><div class="tpb-dot"></div>
+    </div>
+    <div class="task-header-p2">
+      <p class="task-num" id="tn">任务一</p>
+      <h2 class="task-name" id="tt">📝 写周报</h2>
+    </div>
+    <div class="task-brief-card">
+      <p id="tb">给这位新同事布置本周周报任务，看看TA的总结和表达能力。</p>
+    </div>
+    <div class="output-panel loading-state" id="out">
+      <div class="dots-p2"><span></span><span></span><span></span></div>
+      <span style="color:var(--t-3);font-size:0.875rem">千问正在处理...</span>
+    </div>
+    <div class="task-actions-p2">
+      <button class="btn btn-glass" id="btnSkip" onclick="skip()">⏭️ 跳过</button>
+      <button class="btn btn-primary" id="btnNext" onclick="next()" disabled>下一项 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 结果 ====== -->
+<div class="page-wrap screen" id="result">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">入职测试报告</span></div>
+  </div>
+  <div class="result-p2">
+    <div class="result-hero anim-scale-in">
+      <div style="font-size:64px;margin-bottom:16px">🤖</div>
+      <h3>千问 QianWen</h3>
+      <p style="color:var(--c-orange-bright);font-size:0.875rem">AI 全栈同事 · 阿里云出品</p>
+    </div>
+    <div class="score-row anim-fade-up d-1">
+      <div class="score-item"><div class="score-val" id="so">85</div><div class="score-lbl">综合评分</div></div>
+      <div class="score-item"><div class="score-val" id="ss">0.3s</div><div class="score-lbl">平均响应</div></div>
+      <div class="score-item"><div class="score-val">24/7</div><div class="score-lbl">工作模式</div></div>
+    </div>
+    <div class="radar-wrap anim-scale-in d-2">
+      <canvas id="rc"></canvas>
+    </div>
+    <div class="skill-row anim-fade-up d-3" id="skills"></div>
+    <div class="verdict-card anim-fade-up d-4">
+      <p style="color:var(--t-3);font-size:0.75rem;letter-spacing:0.05em;text-transform:uppercase">入职结论</p>
+      <h2 class="verdict-title">下一个工位，<span class="text-gradient">不坐人</span></h2>
+      <p style="color:var(--t-2);font-size:0.875rem">千问大模型——AI时代的操作系统<br>你的团队，可以多一个AI同事了</p>
+    </div>
+    <div class="task-actions-p2 anim-fade-up d-5" style="width:100%">
+      <button class="btn btn-glass" onclick="start()" style="flex:1">🔄 重新测试</button>
+      <button class="btn btn-primary" onclick="share()" style="flex:1">📤 分享报告</button>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span class="slogan-tag">下一个工位，不坐人</span>
+    <span style="color:var(--t-3);margin-left:8px;font-size:0.75rem">— 阿里云千问大模型</span>
+  </div>
+</div>
+
+<script>
+/* === 内联自 shared/utils.js === */
+/* === 大广赛阿里云命题 · 共享工具函数 === */
+
+/**
+ * Toast 提示
+ */
+function showToast(message, duration = 2000) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), duration + 300);
+}
+
+/**
+ * 复制到剪贴板
+ */
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('已复制到剪贴板');
+    return true;
+  } catch {
+    // 降级方案
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+    showToast('已复制到剪贴板');
+    return true;
+  }
+}
+
+/**
+ * 分享（优先使用 Web Share API）
+ */
+async function shareContent(title, text, url) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+      return;
+    } catch (e) {
+      // 用户取消分享
+    }
+  }
+  // 降级：展示自定义分享面板
+  showSharePanel(title, text, url);
+}
+
+/**
+ * 展示自定义分享面板
+ */
+function showSharePanel(title, text, url) {
+  const overlay = document.createElement('div');
+  overlay.className = 'share-overlay';
+  overlay.innerHTML = `
+    <div class="share-panel slide-up">
+      <h3>分享作品</h3>
+      <div class="share-options">
+        <div class="share-option" data-action="wechat">
+          <div class="share-icon" style="background:#07C160">💬</div>
+          <span>微信</span>
+        </div>
+        <div class="share-option" data-action="weibo">
+          <div class="share-icon" style="background:#E6162D">📢</div>
+          <span>微博</span>
+        </div>
+        <div class="share-option" data-action="copy">
+          <div class="share-icon" style="background:#333">📋</div>
+          <span>复制链接</span>
+        </div>
+        <div class="share-option" data-action="more">
+          <div class="share-icon" style="background:#666">⋯</div>
+          <span>更多</span>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-block" style="margin-top:24px" onclick="this.closest('.share-overlay').remove()">
+        取消
+      </button>
+    </div>
+  `;
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+    const action = e.target.closest('.share-option')?.dataset.action;
+    if (action === 'copy') copyToClipboard(url || window.location.href);
+    if (action === 'weibo') window.open(`https://service.weibo.com/share/share.php?title=${encodeURIComponent(title + ' ' + text)}&url=${encodeURIComponent(url || window.location.href)}`);
+    if (action) overlay.remove();
+  });
+
+  document.body.appendChild(overlay);
+}
+
+/**
+ * 创建粒子背景
+ */
+function createParticles(count = 30) {
+  const container = document.createElement('div');
+  container.className = 'particles-bg';
+
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.width = (Math.random() * 4 + 2) + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+    particle.style.animationDelay = (Math.random() * 10) + 's';
+    // 随机混合橘色和蓝色
+    if (Math.random() > 0.5) {
+      particle.style.background = 'var(--brand-blue)';
+    }
+    container.appendChild(particle);
+  }
+
+  return container;
+}
+
+/**
+ * 创建光晕背景
+ */
+function createGlowOrbs() {
+  const fragment = document.createDocumentFragment();
+  const orb1 = document.createElement('div');
+  orb1.className = 'glow-orb glow-orb-orange';
+  const orb2 = document.createElement('div');
+  orb2.className = 'glow-orb glow-orb-blue';
+  fragment.appendChild(orb1);
+  fragment.appendChild(orb2);
+  return fragment;
+}
+
+/**
+ * 打字机效果
+ */
+async function typewriterEffect(element, text, speed = 50) {
+  element.textContent = '';
+  element.style.borderRight = '2px solid var(--brand-orange)';
+  for (let i = 0; i < text.length; i++) {
+    element.textContent += text[i];
+    await new Promise(r => setTimeout(r, speed + Math.random() * 30));
+  }
+  element.style.borderRight = 'none';
+}
+
+/**
+ * 延迟函数
+ */
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * 随机选择
+ */
+function randomPick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * 生成唯一ID
+ */
+function generateId() {
+  return 'dgs_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
+}
+
+/**
+ * 获取URL参数
+ */
+function getQueryParam(key) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(key);
+}
+
+/* ================================================================
+ * 阿里云百炼平台 API 集成
+ * ================================================================
+ *
+ * 使用前请完成以下步骤：
+ * 1. 领取300元算力：https://university.aliyun.com/action/sun-ada
+ * 2. 获取API Key：https://bailian.console.aliyun.com/ → 开通百炼 →
+ *    右上角头像 → API-KEY管理 → 创建新的API Key
+ * 3. 将API Key填入下方 DASHSCOPE_API_KEY 常量
+ * 4. 取消注释真实API调用代码，注释掉演示数据返回
+ *
+ * 文档：https://help.aliyun.com/zh/model-studio/
+ * 兼容模式文档：https://help.aliyun.com/zh/model-studio/use-qwen-by-calling-api
+ */
+
+// ===== 配置区域 =====
+const DASHSCOPE_API_KEY = 'sk-cb0ec1cc42fa412b83a934ebf2f43f81';
+const DASHSCOPE_BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+
+// 模型配置
+const MODELS = {
+  text: 'qwen-max',           // 文本生成（最强版）
+  vision: 'qwen-vl-max',      // 多模态视觉识别
+  code: 'qwen-coder-plus',    // 代码专用
+};
+
+/**
+ * 千问API调用（真实实现）
+ *
+ * @param {string} prompt - 用户提示词
+ * @param {Object} options
+ * @param {string} options.systemPrompt - 系统提示词（角色设定）
+ * @param {number} options.temperature - 温度 (0-2)，默认0.8
+ * @param {string} options.model - 模型名，默认qwen-max
+ * @returns {Promise<string|null>} AI返回的文本，失败或未配置时返回null
+ */
+async function callQianwenAPI(prompt, options = {}) {
+  // 未配置API Key时，返回null让调用方使用演示数据
+  if (!DASHSCOPE_API_KEY) {
+    console.warn('[千问API] 未配置API Key，使用演示数据。');
+    return null;
+  }
+
+  const messages = [];
+  if (options.systemPrompt) {
+    messages.push({ role: 'system', content: options.systemPrompt });
+  }
+  messages.push({ role: 'user', content: prompt });
+
+  try {
+    const response = await fetch(`${DASHSCOPE_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DASHSCOPE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: options.model || MODELS.text,
+        messages: messages,
+        temperature: options.temperature ?? 0.8,
+        max_tokens: options.maxTokens || 2000,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('[千问API] 请求失败:', response.status, errorData);
+      return null;
+    }
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content || '';
+    console.log('[千问API] 成功获取响应，长度:', text.length);
+    return text;
+  } catch (error) {
+    console.error('[千问API] 网络错误:', error.message);
+    return null;
+  }
+}
+
+/**
+ * 千问多模态视觉识别API
+ * 上传图片并让千问识别图片内容
+ *
+ * @param {string} imageBase64 - 图片的base64编码（不含data:前缀）
+ * @param {string} prompt - 对图片的提问
+ * @returns {Promise<string|null>} 识别结果
+ */
+async function callQianwenVisionAPI(imageBase64, prompt) {
+  if (!DASHSCOPE_API_KEY) {
+    console.warn('[千问视觉API] 未配置API Key');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${DASHSCOPE_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DASHSCOPE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: MODELS.vision,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
+            { type: 'text', text: prompt },
+          ],
+        }],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('[千问视觉API] 请求失败:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch (error) {
+    console.error('[千问视觉API] 网络错误:', error.message);
+    return null;
+  }
+}
+
+/**
+ * 调用千问API并重试（带指数退避）
+ */
+async function callQianwenAPIWithRetry(prompt, options = {}, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const result = await callQianwenAPI(prompt, options);
+    if (result !== null) return result;
+    if (attempt < maxRetries - 1) {
+      const waitMs = Math.pow(2, attempt) * 1000;
+      console.log(`[千问API] 第${attempt + 1}次重试，等待${waitMs}ms...`);
+      await delay(waitMs);
+    }
+  }
+  return null;
+}
+
+/**
+ * 万相API调用封装
+ * 文档: https://help.aliyun.com/zh/model-studio/wanxiang
+ *
+ * @param {string} prompt - 生成图像的描述
+ * @param {string} type - 'text2img' | 'img2video' 等
+ * @returns {Promise<string|null>} 生成的图片URL或null
+ */
+async function callWanxiangAPI(prompt, type = 'text2img') {
+  if (!DASHSCOPE_API_KEY) {
+    console.warn('[万相API] 未配置API Key');
+    return null;
+  }
+
+  // 万相文生图API
+  if (type === 'text2img') {
+    try {
+      const response = await fetch('https://dashscope.aliyuncs.com/api/v1/services/aigc/image-generation/generation', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${DASHSCOPE_API_KEY}`,
+          'Content-Type': 'application/json',
+          'X-DashScope-Async': 'enable',
+        },
+        body: JSON.stringify({
+          model: 'wanx-v1',
+          input: {
+            prompt: prompt,
+            negative_prompt: '低质量，模糊，变形',
+          },
+          parameters: {
+            n: 1,
+            size: '1024*1024',
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('[万相API] 请求失败:', response.status);
+        return null;
+      }
+
+      const data = await response.json();
+      // 异步任务，返回task_id用于后续查询
+      if (data.output?.task_id) {
+        console.log('[万相API] 异步任务已创建:', data.output.task_id);
+        return await pollWanxiangTask(data.output.task_id);
+      }
+      return null;
+    } catch (error) {
+      console.error('[万相API] 网络错误:', error.message);
+      return null;
+    }
+  }
+
+  console.warn('[万相API] 不支持的类型:', type);
+  return null;
+}
+
+/**
+ * 轮询万相异步任务结果
+ */
+async function pollWanxiangTask(taskId, maxAttempts = 30, interval = 2000) {
+  for (let i = 0; i < maxAttempts; i++) {
+    await delay(interval);
+    try {
+      const response = await fetch(
+        `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`,
+        { headers: { 'Authorization': `Bearer ${DASHSCOPE_API_KEY}` } }
+      );
+      const data = await response.json();
+
+      if (data.output?.task_status === 'SUCCEEDED') {
+        return data.output.results?.[0]?.url || null;
+      }
+      if (data.output?.task_status === 'FAILED') {
+        console.error('[万相API] 任务失败:', data.output.message);
+        return null;
+      }
+      // 继续轮询
+    } catch (error) {
+      console.error('[万相API] 轮询错误:', error.message);
+    }
+  }
+  console.error('[万相API] 轮询超时');
+  return null;
+}
+
+</script>
+<script>
+const $ = id => document.getElementById(id);
+const TASKS = [
+  {
+    id:'report', num:'任务一', title:'📝 写周报',
+    brief:'本周团队完成了用户系统重构，上线了新版Dashboard，修复了12个bug。请千问写一份简洁有力的周报。',
+    system:'你是一个互联网公司的资深项目经理。请根据用户提供的本周工作总结，写一份结构清晰、专业简洁的周报。',
+    prompt:'你是一个互联网公司的团队成员。本周完成了：1)用户系统重构（核心模块迁移，性能提升40%）2)新版Dashboard上线（覆盖全量用户）3)修复12个bug（支付、登录、消息模块）。请写一份简洁专业的周报，包含本周完成、下周计划、风险提示三个部分。'
+  },
+  {
+    id:'ppt', num:'任务二', title:'📊 做PPT大纲',
+    brief:'要给CEO汇报Q3增长策略，只有30分钟准备时间。请千问快速搞定一份逻辑清晰的大纲。',
+    system:'你是一个曾多次向CEO汇报的策略总监。请为用户提供一份逻辑严密、重点突出的PPT大纲。',
+    prompt:'请为"Q3用户增长策略"写一份面向CEO的PPT大纲。包含：H1回顾与现状、当前痛点、市场机会洞察、核心策略、执行路径、关键指标、资源需求、里程碑计划。每页标题+3个要点。共8-10页。简洁有力。'
+  },
+  {
+    id:'debug', num:'任务三', title:'💻 帮忙Debug',
+    brief:'线上出现了一个棘手的bug——用户在支付环节偶尔会重复扣款。请千问分析可能的原因。',
+    system:'你是一个10年经验的资深后端架构师，精通Node.js、Redis和支付宝支付系统。请提供专业的技术分析。',
+    prompt:'一个电商系统偶尔出现支付重复扣款问题。技术栈：Node.js + Redis + 支付宝API。请分析3个最可能的原因，每个给出详细分析和修复方案。要求专业、可落地。'
+  },
+  {
+    id:'poster', num:'任务四', title:'🎨 设计海报文案',
+    brief:'双11大促在即，需要一套海报的完整文案。时间紧迫，让千问来试试。',
+    system:'你是一个4A广告公司资深创意总监，擅长为科技产品创作有冲击力的广告文案。',
+    prompt:'请为一个"智能办公套件"产品的双11大促设计3张海报的完整文案方案。每张包含：主标题(10字以内)、副标题(20字以内)、正文(50字以内)、CTA按钮文案。主打AI提效卖点。要求：有冲击力，有记忆点，适合社交媒体传播。'
+  },
+  {
+    id:'translate', num:'任务五', title:'🌐 翻译合同',
+    brief:'海外合作伙伴发来了一份英文合同，需要快速翻译成中文，关键条款不能有歧义。',
+    system:'你是一个精通法律英语的专业合同翻译。翻译必须严谨、准确，保持法律文件的专业性。',
+    prompt:'请将以下英文合同条款翻译成中文，保持法律文件的严谨性，并标注关键法律术语：\n"The Licensee shall not, without the prior written consent of the Licensor, assign, transfer, charge, sub-license or deal in any other manner with this Agreement or any rights hereunder, nor purport to do any of the same."'
+  },
+  {
+    id:'data', num:'任务六', title:'📈 分析数据',
+    brief:'市场部发来了一份用户调研原始数据，需要从中提取insight来指导产品迭代。',
+    system:'你是一个SaaS产品资深数据分析师。请从用户调研数据中提炼关键洞察和可执行的建议。',
+    prompt:'以下是某SaaS产品的用户调研数据摘要：[NPS从32降至28，续费率下降5%，客服工单中"操作复杂"相关工单上升40%，新功能使用率仅12%]。请作为产品分析师，从中提炼3个关键洞察，并给出对应的产品改进建议。'
+  }
+];
+
+const ST = { idx:0, scores:{}, done:0 };
+
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo({top:0,behavior:'smooth'})}
+
+function start(){ST.idx=0;ST.scores={};ST.done=0;renderTask();goScreen('task')}
+
+function renderTask(){
+  const t = TASKS[ST.idx];
+  $('ti').textContent = ST.idx+1;
+  $('tn').textContent = t.num;
+  $('tt').textContent = t.title;
+  $('tb').textContent = t.brief;
+  $('out').className = 'output-panel loading-state';
+  $('out').innerHTML = '<div class="dots-p2"><span></span><span></span><span></span></div><span style="color:var(--t-3);font-size:0.875rem">千问正在处理...</span>';
+  $('btnNext').disabled = true;
+  $('btnSkip').style.display = '';
+  if (ST.idx===5) $('btnNext').textContent = '📋 查看报告 →';
+  else $('btnNext').textContent = '下一项 →';
+
+  const dots = $('tpb').querySelectorAll('.tpb-dot');
+  dots.forEach((d,i)=>{d.classList.remove('done','cur');if(i<ST.idx)d.classList.add('done');if(i===ST.idx)d.classList.add('cur')});
+
+  runTask(t);
+}
+
+async function runTask(t){
+  const out = $('out');
+
+  // 真实API
+  const aiResp = await callQianwenAPI(t.prompt, {
+    systemPrompt: t.system,
+    temperature: 0.7,
+    maxTokens: 800
+  });
+
+  await delay(400);
+  out.className = 'output-panel';
+  if (aiResp) {
+    out.innerHTML = `<div class="output-content">${escapeH(aiResp)}</div>`;
+  } else {
+    // fallback 演示数据
+    const demos = {
+      report: '📋 本周工作周报\n\n【本周完成】\n• 用户系统重构——核心模块迁移完成，接口性能提升40%\n• 新版Dashboard上线——覆盖全量用户，加载速度<1.5s\n• Bug修复——累计关闭12个缺陷\n\n【下周计划】\n• 启动用户画像2.0项目\n• Dashboard增加自定义报表功能\n\n【风险提示】\n⚠️ 重构后的用户系统需进行压测验证',
+      ppt: '📊 Q3用户增长策略\n\n[P1] 封面\n[P2] H1回顾：增速8.3%，低于行业均值12%\n[P3] 痛点：获客成本↑23%，留存↓5%\n[P4] 机会：下沉市场渗透率仅3%\n[P5] 策略：内容驱动+社交裂变\n[P6] 执行：KOL矩阵→社区沉淀→裂变\n[P7] 指标：DAU+30%, CAC-20%, LTV+40%\n[P8] 资源：500万预算，团队扩编6人\n[P9] 里程碑：M1验证→M2放量→M3稳定\n[P10] 总结',
+      debug: '🔍 重复扣款根因分析\n\n1.【Redis幂等锁失效 - 概率最高】\n锁过期时间短于支付回调时间，同一请求被处理两次\n→ 修复：锁过期30s→120s + 释放前二次校验\n\n2.【支付宝回调重试未去重】\n异步通知可能重发，notify_id未做唯一性校验\n→ 修复：增加notify_id去重表+状态机幂等控制\n\n3.【前端重复提交】\n支付按钮未防抖，用户快速双击\n→ 修复：按钮级loading + 请求ID去重机制',
+      poster: '🎨 双11智能办公套件\n\n【海报一·效率觉醒】\n主标题：不开会，能做更多\n副标题：把重复劳动交给AI\nCTA：立即解锁 →\n\n【海报二·拒绝加班】\n主标题：下班！现在就下\n副标题：你和高效率之间，只差AI同事\nCTA：免费试用 →\n\n【海报三·一人成军】\n主标题：一个人，就是团队\n副标题：当AI成为标配的全栈能力\nCTA：体验AI工作台 →',
+      translate: '⚖️ 合同条款翻译\n\n【译文】\n未经许可方事先书面同意，被许可方不得转让、转移、设立担保、分许可或以任何其他方式处置本协议或本协议项下的任何权利，亦不得声称已实施前述任何行为。\n\n【关键术语】\n• assign — 转让（权利主体变更）\n• transfer — 转移（权利客体移转）\n• charge — 设立担保/抵押\n• sub-license — 分许可\n• purport to do — 声称实施\n• prior written consent — 事先书面同意',
+      data: '📈 用户洞察\n\n【洞察一】产品体验拖累增长\nNPS↓12.5%，操作复杂工单↑40%，高度相关。产品已超用户容忍阈值\n→ 启动30天简化冲刺，聚焦Top 5高频流程\n\n【洞察二】新功能未解决真实需求\n使用率仅12%，但无"缺功能"投诉。团队在造轮子\n→ 暂停新功能，先做用户需求验证\n\n【洞察三】续费风险积累\n续费率↓5%，结合NPS下降，用户在用脚投票\n→ 建立用户健康度模型，提前介入高风险客户'
+    };
+    out.innerHTML = `<div class="output-content">${escapeH(demos[t.id] || '任务完成。')}</div>`;
+  }
+
+  ST.scores[t.id] = 75 + Math.floor(Math.random()*20);
+  ST.done++;
+  $('btnNext').disabled = false;
+}
+
+function next(){
+  if (ST.idx < 5) { ST.idx++; renderTask(); }
+  else showResult();
+}
+
+function skip(){ ST.scores[TASKS[ST.idx].id]=50; ST.done++; next(); }
+
+function showResult(){
+  goScreen('result');
+  const vals = Object.values(ST.scores);
+  const avg = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+  $('so').textContent = avg;
+  $('ss').textContent = (0.2 + Math.random()*0.4).toFixed(1)+'s';
+
+  $('skills').innerHTML = TASKS.map(t=>{
+    const s = ST.scores[t.id]||50;
+    return `<span class="skill-badge">${t.title} · ${s}分</span>`;
+  }).join('');
+
+  setTimeout(drawRadar, 400);
+}
+
+function drawRadar(){
+  const canvas = $('rc');
+  const wrap = canvas.parentElement;
+  const size = wrap.offsetWidth * 2;
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const cx=size/2, cy=size/2, r=size*0.32, sides=6, step=Math.PI*2/sides;
+
+  ctx.clearRect(0,0,size,size);
+  // grid
+  for(let l=1;l<=5;l++){
+    ctx.beginPath();
+    for(let i=0;i<sides;i++){
+      const a=step*i-Math.PI/2;const rr=r/5*l;
+      const x=cx+rr*Math.cos(a),y=cy+rr*Math.sin(a);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.stroke();
+  }
+  // axes
+  for(let i=0;i<sides;i++){
+    const a=step*i-Math.PI/2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.stroke();
+  }
+  // data
+  ctx.beginPath();
+  for(let i=0;i<sides;i++){
+    const score=(ST.scores[TASKS[i].id]||50)/100;
+    const a=step*i-Math.PI/2;const rr=r*score;
+    const x=cx+rr*Math.cos(a),y=cy+rr*Math.sin(a);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(255,106,0,0.1)';ctx.fill();
+  ctx.strokeStyle='#FF6A00';ctx.lineWidth=2;ctx.stroke();
+  // dots
+  for(let i=0;i<sides;i++){
+    const score=(ST.scores[TASKS[i].id]||50)/100;
+    const a=step*i-Math.PI/2;const rr=r*score;
+    ctx.beginPath();ctx.arc(cx+rr*Math.cos(a),cy+rr*Math.sin(a),5,0,Math.PI*2);
+    ctx.fillStyle='#FF6A00';ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  // labels
+  ctx.fillStyle='#FFFFFF';ctx.font='bold 20px -apple-system,sans-serif';ctx.textAlign='center';
+  const labels=['写周报','PPT','Debug','海报','翻译','数据'];
+  for(let i=0;i<sides;i++){
+    const a=step*i-Math.PI/2;
+    ctx.fillText(labels[i],cx+(r+40)*Math.cos(a),cy+(r+40)*Math.sin(a)+7);
+  }
+}
+
+async function share(){
+  await shareContent('千问入职测试报告','千问大模型AI同事入职测试 🤖\n下一个工位，不坐人\n——阿里云千问大模型 × 第18届大广赛',window.location.href);
+}
+
+function escapeH(s){
+  const d=document.createElement('div');d.textContent=s;return d.innerHTML;
+}
+
+goScreen('splash');
+</script>
+</body>
+</html>

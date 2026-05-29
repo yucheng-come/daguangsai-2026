@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>一切从问开始 - 千问大模型</title>
+<style>
+/* === 内联自 shared/styles.css === */
+/* ================================================================
+ * 大广赛阿里云命题 · 设计系统 v2
+ * 设计方向：暗色科技 + 玻璃质感 + 精緻动效
+ * ================================================================ */
+
+:root {
+  /* === 主色调 === */
+  --c-orange: #FF6A00;
+  --c-orange-bright: #FF8C3A;
+  --c-blue: #0068FF;
+  --c-blue-bright: #3B82F6;
+  --c-purple: #8B5CF6;
+  --c-cyan: #06B6D4;
+
+  /* === 渐变 === */
+  --grad-brand: linear-gradient(135deg, #FF6A00 0%, #FF3D00 40%, #0068FF 100%);
+  --grad-warm: linear-gradient(135deg, #FF6A00, #F97316, #EF4444);
+  --grad-cool: linear-gradient(135deg, #0068FF, #3B82F6, #8B5CF6);
+  --grad-subtle: linear-gradient(180deg, rgba(255,106,0,0.06) 0%, rgba(0,104,255,0.06) 100%);
+
+  /* === 背景 === */
+  --bg-deep: #06080D;
+  --bg-base: #0A0E1A;
+  --bg-surface: #111827;
+  --bg-card: rgba(17, 24, 39, 0.6);
+  --bg-glass: rgba(255, 255, 255, 0.03);
+
+  /* === 文字 === */
+  --t-1: #FFFFFF;
+  --t-2: rgba(255, 255, 255, 0.65);
+  --t-3: rgba(255, 255, 255, 0.35);
+  --t-muted: rgba(255, 255, 255, 0.15);
+
+  /* === 边框 === */
+  --b-subtle: rgba(255, 255, 255, 0.06);
+  --b-card: rgba(255, 255, 255, 0.08);
+  --b-focus: rgba(255, 106, 0, 0.4);
+
+  /* === 圆角 === */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-2xl: 32px;
+  --r-full: 9999px;
+
+  /* === 阴影 === */
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  --shadow-glow-o: 0 0 30px rgba(255,106,0,0.15);
+  --shadow-glow-b: 0 0 30px rgba(0,104,255,0.15);
+  --shadow-glow-p: 0 0 30px rgba(139,92,246,0.15);
+
+  /* === 缓动 === */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ================================================================
+ * 基础重置
+ * ================================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-deep);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg-base);
+  color: var(--t-1);
+  line-height: 1.6;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ================================================================
+ * 动态网格背景
+ * ================================================================ */
+.bg-grid {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 20%, transparent 70%);
+}
+
+/* ================================================================
+ * 光晕
+ * ================================================================ */
+.glow-orb {
+  position: fixed; border-radius: 50%; filter: blur(100px);
+  pointer-events: none; z-index: 0; opacity: 0.12;
+  animation: orbBreath 8s ease-in-out infinite;
+}
+.glow-orb-o {
+  width: 500px; height: 500px;
+  background: var(--c-orange);
+  top: -200px; right: -150px;
+  animation-delay: 0s;
+}
+.glow-orb-b {
+  width: 400px; height: 400px;
+  background: var(--c-blue);
+  bottom: -150px; left: -100px;
+  animation-delay: -4s;
+}
+.glow-orb-p {
+  width: 300px; height: 300px;
+  background: var(--c-purple);
+  top: 40%; left: 50%;
+  animation-delay: -2s;
+}
+@keyframes orbBreath {
+  0%, 100% { opacity: 0.08; transform: scale(1) translate(0, 0); }
+  33% { opacity: 0.14; transform: scale(1.1) translate(30px, -20px); }
+  66% { opacity: 0.06; transform: scale(0.9) translate(-20px, 30px); }
+}
+
+/* ================================================================
+ * 排版
+ * ================================================================ */
+h1 { font-size: 2.125rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; }
+h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; }
+h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.35; }
+p  { color: var(--t-2); font-size: 0.9375rem; line-height: 1.7; }
+
+.text-gradient {
+  background: var(--grad-brand);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-warm {
+  background: var(--grad-warm);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-cool {
+  background: var(--grad-cool);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ================================================================
+ * 页面容器
+ * ================================================================ */
+.page-wrap {
+  position: relative; z-index: 1;
+  max-width: 480px; margin: 0 auto;
+  padding: 20px 20px 40px;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column;
+}
+
+/* ================================================================
+ * 导航
+ * ================================================================ */
+.nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0 16px;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--c-orange);
+  box-shadow: 0 0 10px rgba(255,106,0,0.5);
+}
+.nav-label {
+  font-size: 0.75rem; font-weight: 500; color: var(--t-3);
+  letter-spacing: 0.03em;
+}
+
+/* ================================================================
+ * 按钮 v2
+ * ================================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 13px 28px; border: none; border-radius: var(--r-full);
+  font-size: 0.9375rem; font-weight: 600; cursor: pointer;
+  transition: all 0.3s var(--ease-out-expo);
+  text-decoration: none; position: relative; overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: var(--grad-brand);
+  color: white;
+  box-shadow: 0 4px 20px rgba(255,106,0,0.25);
+}
+.btn-primary:hover { box-shadow: 0 6px 30px rgba(255,106,0,0.4); transform: translateY(-1px); }
+
+.btn-glass {
+  background: rgba(255,255,255,0.05);
+  color: var(--t-1);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.btn-glass:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.btn-ghost {
+  background: transparent; color: var(--t-2);
+  padding: 10px 18px;
+}
+.btn-ghost:hover { color: var(--t-1); }
+
+.btn-lg { padding: 16px 36px; font-size: 1.0625rem; }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: 0.35; pointer-events: none; }
+
+/* ================================================================
+ * 玻璃卡片
+ * ================================================================ */
+.glass-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--r-xl);
+  padding: 28px;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  transition: all 0.4s var(--ease-out-expo);
+}
+.glass-card:hover {
+  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+}
+
+/* ================================================================
+ * 输入框 v2
+ * ================================================================ */
+.input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r-lg);
+  padding: 14px 18px;
+  color: var(--t-1);
+  font-size: 1rem; font-family: inherit;
+  transition: all 0.2s var(--ease-out-expo);
+  outline: none; resize: none;
+}
+.input:focus {
+  border-color: var(--c-orange);
+  box-shadow: 0 0 0 4px rgba(255,106,0,0.06);
+  background: rgba(255,255,255,0.06);
+}
+.input::placeholder { color: var(--t-muted); font-size: 0.9375rem; }
+
+/* ================================================================
+ * 动画
+ * ================================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,106,0,0.15); }
+  50% { box-shadow: 0 0 30px rgba(255,106,0,0.35); }
+}
+
+.anim-fade-up {
+  animation: fadeUp 0.7s var(--ease-out-expo) both;
+}
+.anim-scale-in {
+  animation: scaleIn 0.5s var(--ease-out-back) both;
+}
+.anim-slide-up {
+  animation: slideUp 0.8s var(--ease-out-expo) both;
+}
+
+/* 延迟工具类 */
+.d-1 { animation-delay: 0.06s; }
+.d-2 { animation-delay: 0.12s; }
+.d-3 { animation-delay: 0.18s; }
+.d-4 { animation-delay: 0.24s; }
+.d-5 { animation-delay: 0.30s; }
+.d-6 { animation-delay: 0.36s; }
+.d-7 { animation-delay: 0.42s; }
+
+/* ================================================================
+ * Toast
+ * ================================================================ */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.85); color: white;
+  padding: 10px 24px; border-radius: var(--r-full);
+  font-size: 0.875rem; font-weight: 500; z-index: 200;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: fadeUp 0.3s var(--ease-out-back), fadeIn 0.3s ease 2s forwards;
+}
+
+/* ================================================================
+ * 响应式
+ * ================================================================ */
+
+/* 平板 — 768px+ */
+@media (min-width: 768px) {
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 1.75rem; }
+  .page-wrap { max-width: 580px; padding: 28px 28px 48px; }
+  .btn { padding: 14px 32px; font-size: 1rem; }
+  .btn-lg { padding: 18px 40px; font-size: 1.125rem; }
+  .glass-card { padding: 36px; }
+}
+
+/* 桌面 — 1024px+ */
+@media (min-width: 1024px) {
+  h1 { font-size: 3rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.375rem; }
+  p  { font-size: 1.0625rem; }
+
+  .page-wrap {
+    max-width: 880px;
+    padding: 36px 40px 60px;
+  }
+
+  .nav-bar { padding: 12px 0 24px; }
+  .nav-label { font-size: 0.8125rem; }
+
+  .btn { padding: 15px 36px; font-size: 1.0625rem; }
+  .btn-lg { padding: 20px 48px; font-size: 1.1875rem; }
+  .btn-ghost { padding: 12px 22px; }
+
+  .glass-card { padding: 44px; border-radius: var(--r-2xl); }
+
+  .bg-grid { background-size: 80px 80px; }
+
+  /* 桌面光晕更大 */
+  .glow-orb-o { width: 700px; height: 700px; top: -300px; right: -200px; }
+  .glow-orb-b { width: 550px; height: 550px; bottom: -200px; left: -150px; }
+  .glow-orb-p { width: 450px; height: 450px; }
+}
+
+/* 大屏 — 1440px+ */
+@media (min-width: 1440px) {
+  .page-wrap { max-width: 960px; padding: 48px 60px 80px; }
+  h1 { font-size: 3.5rem; }
+  .bg-grid { background-size: 100px 100px; }
+}
+
+</style>
+<style>
+  .screen{display:none;flex-direction:column;min-height:100vh;min-height:100dvh}
+  .screen.on{display:flex}
+
+  /* === 开场 === */
+  .splash-p3{justify-content:center;align-items:center;text-align:center;gap:36px;padding-top:6vh}
+  .qm{font-size:120px;font-weight:900;line-height:1;
+    background:var(--grad-brand);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    animation:float 5s ease-in-out infinite;filter:drop-shadow(0 0 80px rgba(255,106,0,0.2))}
+  .quote-block-p3{
+    background:rgba(255,255,255,0.02);border-left:2px solid var(--c-orange);
+    padding:16px 20px;border-radius:0 var(--r-md) var(--r-md) 0;text-align:left;max-width:340px;
+  }
+  .quote-block-p3 .q{font-size:0.9375rem;color:var(--t-2);font-style:italic;line-height:1.8}
+  .quote-block-p3 .a{font-size:0.75rem;color:var(--t-3);margin-top:6px}
+  .hint-p3{font-size:0.8125rem;color:var(--t-muted)}
+
+  /* === 输入 === */
+  .input-p3{gap:28px;align-items:center;padding-top:24px}
+  .ta-wrap{width:100%;position:relative}
+  .ta-wrap textarea{
+    width:100%;min-height:110px;background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.08);border-radius:var(--r-xl);
+    padding:24px;color:var(--t-1);font-size:1.0625rem;font-family:inherit;
+    resize:none;outline:none;transition:all 0.3s var(--ease-out-expo);line-height:1.7;
+  }
+  .ta-wrap textarea:focus{
+    border-color:var(--c-orange);box-shadow:0 0 0 4px rgba(255,106,0,0.05);
+    background:rgba(255,255,255,0.05);
+  }
+  .ta-wrap textarea::placeholder{color:var(--t-muted)}
+  .ta-counter{text-align:right;font-size:0.7rem;color:var(--t-3);margin-top:4px;padding-right:4px}
+  .eg-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:400px}
+  .eg-chip{
+    padding:8px 16px;border-radius:var(--r-full);font-size:0.8125rem;cursor:pointer;
+    border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);
+    color:var(--t-2);transition:all 0.2s var(--ease-out-expo);
+  }
+  .eg-chip:hover{border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.04)}
+
+  /* === 进化 === */
+  .evolve-p3{gap:24px;align-items:center;padding-top:20px}
+  .ev-stage{
+    width:100%;text-align:center;padding:28px 24px;border-radius:var(--r-xl);
+    transition:all 0.6s var(--ease-out-expo);
+  }
+  .ev-stage.orig{
+    background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+  }
+  .ev-stage.mid{
+    background:rgba(255,106,0,0.03);border:1px solid rgba(255,106,0,0.1);
+  }
+  .ev-stage.final{
+    background:rgba(0,104,255,0.03);border:1px solid rgba(0,104,255,0.1);
+  }
+  .ev-label{font-size:0.6875rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--t-3);margin-bottom:8px}
+  .ev-q{font-size:1.125rem;font-weight:600;line-height:1.6;color:var(--t-1)}
+  .ev-arrow{font-size:1.5rem;opacity:0.3;text-align:center}
+
+  /* === 问题树 === */
+  .tree-p3{gap:24px;align-items:center;padding-bottom:120px}
+  .tree-vis{width:100%;position:relative}
+  .t-node{
+    padding:18px 20px;border-radius:var(--r-lg);margin-bottom:12px;
+    animation:fadeUp 0.6s var(--ease-out-expo) both;transition:all 0.3s var(--ease-out-expo);
+  }
+  .t-node:hover{transform:translateX(4px)}
+  .t-root{
+    background:var(--grad-brand);color:white;font-weight:700;text-align:center;
+    font-size:1.0625rem;box-shadow:0 4px 24px rgba(255,106,0,0.2);
+  }
+  .t-branch{
+    background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+    margin-left:28px;font-size:0.9375rem;color:var(--t-2);
+  }
+  .t-branch::before{content:'';position:absolute;left:-16px;top:50%;width:16px;height:1.5px;background:rgba(255,255,255,0.1)}
+  .t-leaf{
+    background:rgba(0,104,255,0.04);border:1px solid rgba(0,104,255,0.12);
+    margin-left:56px;font-size:0.875rem;color:var(--t-2);
+  }
+  .t-leaf::before{content:'';position:absolute;left:-16px;top:50%;width:16px;height:1.5px;background:rgba(0,104,255,0.15)}
+  .t-badge{
+    display:inline-block;padding:3px 10px;border-radius:var(--r-full);
+    font-size:0.65rem;font-weight:600;margin-right:10px;letter-spacing:0.03em;
+  }
+  .t-root .t-badge{background:rgba(255,255,255,0.2);color:white}
+  .t-branch .t-badge{background:rgba(255,106,0,0.12);color:var(--c-orange-bright)}
+  .t-leaf .t-badge{background:rgba(0,104,255,0.12);color:var(--c-blue-bright)}
+
+  .insight-block{text-align:center;padding:28px 20px;width:100%}
+  .insight-block p{font-size:1.0625rem;line-height:2;color:var(--t-2)}
+  .final-slogan{font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;text-align:center;margin-top:8px}
+
+  .dots-p3{display:flex;gap:5px;justify-content:center}
+  .dots-p3 span{width:6px;height:6px;border-radius:50%;background:var(--c-purple);animation:dotBounce 1.4s ease-in-out infinite both}
+  .dots-p3 span:nth-child(1){animation-delay:-0.32s}
+  .dots-p3 span:nth-child(2){animation-delay:-0.16s}
+  @keyframes dotBounce{0%,80%,100%{transform:scale(0.3);opacity:0.3}40%{transform:scale(1);opacity:1}}
+
+  /* === 桌面端 === */
+  @media (min-width: 768px) {
+    .qm{font-size:150px}
+    .ev-q{font-size:1.25rem}
+    .t-root{font-size:1.1875rem}
+    .final-slogan{font-size:2rem}
+  }
+  @media (min-width: 1024px) {
+    .splash-p3{gap:44px}
+    .qm{font-size:180px}
+    .evolve-p3{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:20px}
+    .evolve-p3 .ev-stage{flex:1;min-width:250px;max-width:300px}
+    .evolve-p3 .ev-arrow{display:none}
+    .tree-vis{max-width:700px;margin:0 auto}
+    .t-branch{margin-left:60px}
+    .t-leaf{margin-left:120px}
+    .t-branch::before{left:-36px;width:36px}
+    .t-leaf::before{left:-36px;width:36px}
+    .final-slogan{font-size:2.5rem}
+    .insight-block p{font-size:1.1875rem}
+  }
+  @media (min-width: 1440px) {
+    .qm{font-size:200px}
+    .tree-vis{max-width:800px}
+    .final-slogan{font-size:3rem}
+  }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="glow-orb glow-orb-o"></div>
+<div class="glow-orb glow-orb-b"></div>
+<div class="glow-orb glow-orb-p"></div>
+
+<!-- ====== 开场 ====== -->
+<div class="page-wrap screen on" id="splash">
+  <div class="nav-bar anim-fade-up">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">阿里云 × 千问</span></div>
+  </div>
+  <div class="splash-p3">
+    <div class="qm anim-scale-in">?</div>
+    <h1 class="anim-fade-up d-1" style="font-size:2.25rem;font-weight:900;letter-spacing:-0.04em;text-align:center">
+      一切<span class="text-gradient">从问</span>开始
+    </h1>
+    <p class="anim-fade-up d-2" style="color:var(--t-2);max-width:300px;text-align:center">
+      人类每一次进步，都始于一个问题。<br>
+      牛顿、图灵、爱因斯坦——<br>
+      他们不是给出答案的人，<br>而是问对问题的人。
+    </p>
+    <div class="quote-block-p3 anim-fade-up d-3">
+      <p class="q">"如果我有一个小时来拯救世界，我会花55分钟定义问题，再用5分钟解决它。"</p>
+      <p class="a">—— 阿尔伯特·爱因斯坦</p>
+    </div>
+    <p class="hint-p3 anim-fade-up d-4">千问大模型不给你答案<br>它帮你问出更好的问题</p>
+  </div>
+  <div class="bottom-bar anim-fade-up d-5">
+    <button class="btn btn-primary btn-lg btn-block" onclick="goInput()" style="max-width:360px;margin:0 auto">
+      💭 提出你的问题
+    </button>
+  </div>
+</div>
+
+<!-- ====== 输入 ====== -->
+<div class="page-wrap screen" id="input">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">一切从问开始</span></div>
+    <button class="btn btn-ghost" onclick="goSplash()">← 返回</button>
+  </div>
+  <div class="input-p3">
+    <h2 class="anim-fade-up" style="text-align:center;font-size:1.25rem">你现在在想什么？</h2>
+    <div class="ta-wrap anim-fade-up d-1">
+      <textarea id="qi" placeholder="例如：怎样才能找到好工作？" maxlength="100"></textarea>
+      <p class="ta-counter"><span id="cc">0</span>/100</p>
+    </div>
+    <div class="eg-chips anim-fade-up d-2">
+      <button class="eg-chip" onclick="use('怎样才能找到好工作？')">找到好工作</button>
+      <button class="eg-chip" onclick="use('人生的意义是什么？')">人生的意义</button>
+      <button class="eg-chip" onclick="use('AI会取代人类吗？')">AI取代人类</button>
+      <button class="eg-chip" onclick="use('如何变得更自律？')">变得自律</button>
+      <button class="eg-chip" onclick="use('学什么技能最有前途？')">学什么技能</button>
+      <button class="eg-chip" onclick="use('什么是真正的成功？')">真正的成功</button>
+    </div>
+    <button class="btn btn-primary btn-lg btn-block anim-fade-up d-3" onclick="goEvolve()" style="max-width:360px">
+      ✨ 让千问帮你进化这个问题
+    </button>
+  </div>
+</div>
+
+<!-- ====== 进化中 ====== -->
+<div class="page-wrap screen" id="evolve">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">千问正在深度思考...</span></div>
+  </div>
+  <div class="evolve-p3" id="evContainer"></div>
+  <div class="bottom-bar">
+    <p style="font-size:0.75rem;color:var(--t-3)">千问大模型通过苏格拉底式提问，逐层深入问题本质</p>
+  </div>
+</div>
+
+<!-- ====== 问题树 ====== -->
+<div class="page-wrap screen" id="tree">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">问题进化树</span></div>
+  </div>
+  <div class="tree-p3">
+    <p class="anim-fade-up" style="color:var(--t-3);text-align:center;font-size:0.875rem">
+      从原始提问到本质追问——这就是千问大模型的力量
+    </p>
+    <div class="tree-vis" id="treeVis"></div>
+    <div class="insight-block anim-fade-up d-2">
+      <div class="dots-p3"><span></span><span></span><span></span></div>
+      <p id="insight"></p>
+      <h2 class="final-slogan">
+        人类进步，<span class="text-gradient">从千问开始</span>
+      </h2>
+    </div>
+    <div style="display:flex;gap:10px;width:100%;max-width:400px" class="anim-fade-up d-3">
+      <button class="btn btn-glass" onclick="goInput()" style="flex:1">🔄 问一个新问题</button>
+      <button class="btn btn-primary" onclick="share()" style="flex:1">📤 分享进化树</button>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span class="slogan-tag">人类进步，从千问开始</span>
+    <span style="color:var(--t-3);margin-left:8px;font-size:0.75rem">— 阿里云千问大模型</span>
+  </div>
+</div>
+
+<script>
+/* === 内联自 shared/utils.js === */
+/* === 大广赛阿里云命题 · 共享工具函数 === */
+
+/**
+ * Toast 提示
+ */
+function showToast(message, duration = 2000) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), duration + 300);
+}
+
+/**
+ * 复制到剪贴板
+ */
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('已复制到剪贴板');
+    return true;
+  } catch {
+    // 降级方案
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+    showToast('已复制到剪贴板');
+    return true;
+  }
+}
+
+/**
+ * 分享（优先使用 Web Share API）
+ */
+async function shareContent(title, text, url) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+      return;
+    } catch (e) {
+      // 用户取消分享
+    }
+  }
+  // 降级：展示自定义分享面板
+  showSharePanel(title, text, url);
+}
+
+/**
+ * 展示自定义分享面板
+ */
+function showSharePanel(title, text, url) {
+  const overlay = document.createElement('div');
+  overlay.className = 'share-overlay';
+  overlay.innerHTML = `
+    <div class="share-panel slide-up">
+      <h3>分享作品</h3>
+      <div class="share-options">
+        <div class="share-option" data-action="wechat">
+          <div class="share-icon" style="background:#07C160">💬</div>
+          <span>微信</span>
+        </div>
+        <div class="share-option" data-action="weibo">
+          <div class="share-icon" style="background:#E6162D">📢</div>
+          <span>微博</span>
+        </div>
+        <div class="share-option" data-action="copy">
+          <div class="share-icon" style="background:#333">📋</div>
+          <span>复制链接</span>
+        </div>
+        <div class="share-option" data-action="more">
+          <div class="share-icon" style="background:#666">⋯</div>
+          <span>更多</span>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-block" style="margin-top:24px" onclick="this.closest('.share-overlay').remove()">
+        取消
+      </button>
+    </div>
+  `;
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+    const action = e.target.closest('.share-option')?.dataset.action;
+    if (action === 'copy') copyToClipboard(url || window.location.href);
+    if (action === 'weibo') window.open(`https://service.weibo.com/share/share.php?title=${encodeURIComponent(title + ' ' + text)}&url=${encodeURIComponent(url || window.location.href)}`);
+    if (action) overlay.remove();
+  });
+
+  document.body.appendChild(overlay);
+}
+
+/**
+ * 创建粒子背景
+ */
+function createParticles(count = 30) {
+  const container = document.createElement('div');
+  container.className = 'particles-bg';
+
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.width = (Math.random() * 4 + 2) + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+    particle.style.animationDelay = (Math.random() * 10) + 's';
+    // 随机混合橘色和蓝色
+    if (Math.random() > 0.5) {
+      particle.style.background = 'var(--brand-blue)';
+    }
+    container.appendChild(particle);
+  }
+
+  return container;
+}
+
+/**
+ * 创建光晕背景
+ */
+function createGlowOrbs() {
+  const fragment = document.createDocumentFragment();
+  const orb1 = document.createElement('div');
+  orb1.className = 'glow-orb glow-orb-orange';
+  const orb2 = document.createElement('div');
+  orb2.className = 'glow-orb glow-orb-blue';
+  fragment.appendChild(orb1);
+  fragment.appendChild(orb2);
+  return fragment;
+}
+
+/**
+ * 打字机效果
+ */
+async function typewriterEffect(element, text, speed = 50) {
+  element.textContent = '';
+  element.style.borderRight = '2px solid var(--brand-orange)';
+  for (let i = 0; i < text.length; i++) {
+    element.textContent += text[i];
+    await new Promise(r => setTimeout(r, speed + Math.random() * 30));
+  }
+  element.style.borderRight = 'none';
+}
+
+/**
+ * 延迟函数
+ */
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * 随机选择
+ */
+function randomPick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * 生成唯一ID
+ */
+function generateId() {
+  return 'dgs_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
+}
+
+/**
+ * 获取URL参数
+ */
+function getQueryParam(key) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(key);
+}
+
+/* ================================================================
+ * 阿里云百炼平台 API 集成
+ * ================================================================
+ *
+ * 使用前请完成以下步骤：
+ * 1. 领取300元算力：https://university.aliyun.com/action/sun-ada
+ * 2. 获取API Key：https://bailian.console.aliyun.com/ → 开通百炼 →
+ *    右上角头像 → API-KEY管理 → 创建新的API Key
+ * 3. 将API Key填入下方 DASHSCOPE_API_KEY 常量
+ * 4. 取消注释真实API调用代码，注释掉演示数据返回
+ *
+ * 文档：https://help.aliyun.com/zh/model-studio/
+ * 兼容模式文档：https://help.aliyun.com/zh/model-studio/use-qwen-by-calling-api
+ */
+
+// ===== 配置区域 =====
+const DASHSCOPE_API_KEY = 'sk-cb0ec1cc42fa412b83a934ebf2f43f81';
+const DASHSCOPE_BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+
+// 模型配置
+const MODELS = {
+  text: 'qwen-max',           // 文本生成（最强版）
+  vision: 'qwen-vl-max',      // 多模态视觉识别
+  code: 'qwen-coder-plus',    // 代码专用
+};
+
+/**
+ * 千问API调用（真实实现）
+ *
+ * @param {string} prompt - 用户提示词
+ * @param {Object} options
+ * @param {string} options.systemPrompt - 系统提示词（角色设定）
+ * @param {number} options.temperature - 温度 (0-2)，默认0.8
+ * @param {string} options.model - 模型名，默认qwen-max
+ * @returns {Promise<string|null>} AI返回的文本，失败或未配置时返回null
+ */
+async function callQianwenAPI(prompt, options = {}) {
+  // 未配置API Key时，返回null让调用方使用演示数据
+  if (!DASHSCOPE_API_KEY) {
+    console.warn('[千问API] 未配置API Key，使用演示数据。');
+    return null;
+  }
+
+  const messages = [];
+  if (options.systemPrompt) {
+    messages.push({ role: 'system', content: options.systemPrompt });
+  }
+  messages.push({ role: 'user', content: prompt });
+
+  try {
+    const response = await fetch(`${DASHSCOPE_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DASHSCOPE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: options.model || MODELS.text,
+        messages: messages,
+        temperature: options.temperature ?? 0.8,
+        max_tokens: options.maxTokens || 2000,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('[千问API] 请求失败:', response.status, errorData);
+      return null;
+    }
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content || '';
+    console.log('[千问API] 成功获取响应，长度:', text.length);
+    return text;
+  } catch (error) {
+    console.error('[千问API] 网络错误:', error.message);
+    return null;
+  }
+}
+
+/**
+ * 千问多模态视觉识别API
+ * 上传图片并让千问识别图片内容
+ *
+ * @param {string} imageBase64 - 图片的base64编码（不含data:前缀）
+ * @param {string} prompt - 对图片的提问
+ * @returns {Promise<string|null>} 识别结果
+ */
+async function callQianwenVisionAPI(imageBase64, prompt) {
+  if (!DASHSCOPE_API_KEY) {
+    console.warn('[千问视觉API] 未配置API Key');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${DASHSCOPE_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DASHSCOPE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: MODELS.vision,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
+            { type: 'text', text: prompt },
+          ],
+        }],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('[千问视觉API] 请求失败:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch (error) {
+    console.error('[千问视觉API] 网络错误:', error.message);
+    return null;
+  }
+}
+
+/**
+ * 调用千问API并重试（带指数退避）
+ */
+async function callQianwenAPIWithRetry(prompt, options = {}, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const result = await callQianwenAPI(prompt, options);
+    if (result !== null) return result;
+    if (attempt < maxRetries - 1) {
+      const waitMs = Math.pow(2, attempt) * 1000;
+      console.log(`[千问API] 第${attempt + 1}次重试，等待${waitMs}ms...`);
+      await delay(waitMs);
+    }
+  }
+  return null;
+}
+
+/**
+ * 万相API调用封装
+ * 文档: https://help.aliyun.com/zh/model-studio/wanxiang
+ *
+ * @param {string} prompt - 生成图像的描述
+ * @param {string} type - 'text2img' | 'img2video' 等
+ * @returns {Promise<string|null>} 生成的图片URL或null
+ */
+async function callWanxiangAPI(prompt, type = 'text2img') {
+  if (!DASHSCOPE_API_KEY) {
+    console.warn('[万相API] 未配置API Key');
+    return null;
+  }
+
+  // 万相文生图API
+  if (type === 'text2img') {
+    try {
+      const response = await fetch('https://dashscope.aliyuncs.com/api/v1/services/aigc/image-generation/generation', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${DASHSCOPE_API_KEY}`,
+          'Content-Type': 'application/json',
+          'X-DashScope-Async': 'enable',
+        },
+        body: JSON.stringify({
+          model: 'wanx-v1',
+          input: {
+            prompt: prompt,
+            negative_prompt: '低质量，模糊，变形',
+          },
+          parameters: {
+            n: 1,
+            size: '1024*1024',
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('[万相API] 请求失败:', response.status);
+        return null;
+      }
+
+      const data = await response.json();
+      // 异步任务，返回task_id用于后续查询
+      if (data.output?.task_id) {
+        console.log('[万相API] 异步任务已创建:', data.output.task_id);
+        return await pollWanxiangTask(data.output.task_id);
+      }
+      return null;
+    } catch (error) {
+      console.error('[万相API] 网络错误:', error.message);
+      return null;
+    }
+  }
+
+  console.warn('[万相API] 不支持的类型:', type);
+  return null;
+}
+
+/**
+ * 轮询万相异步任务结果
+ */
+async function pollWanxiangTask(taskId, maxAttempts = 30, interval = 2000) {
+  for (let i = 0; i < maxAttempts; i++) {
+    await delay(interval);
+    try {
+      const response = await fetch(
+        `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`,
+        { headers: { 'Authorization': `Bearer ${DASHSCOPE_API_KEY}` } }
+      );
+      const data = await response.json();
+
+      if (data.output?.task_status === 'SUCCEEDED') {
+        return data.output.results?.[0]?.url || null;
+      }
+      if (data.output?.task_status === 'FAILED') {
+        console.error('[万相API] 任务失败:', data.output.message);
+        return null;
+      }
+      // 继续轮询
+    } catch (error) {
+      console.error('[万相API] 轮询错误:', error.message);
+    }
+  }
+  console.error('[万相API] 轮询超时');
+  return null;
+}
+
+</script>
+<script>
+const $=id=>document.getElementById(id);
+const ST={orig:'',evolved:[]};
+
+const LAYERS=[
+  {name:'表层追问',emoji:'🔍',system:'你是一个苏格拉底式的哲学咨询师。不要直接回答用户的问题，而是帮助他们发现更深层的问题。只输出新的、更好的问题。',
+   prompt:'用户问了一个问题。让我们深入一层：这个问题背后真正的关切是什么？请将这个问题变得更本质。只输出一个新的、更深刻的问题，不要解释。'},
+  {name:'假设检验',emoji:'🧠',system:'你是一个苏格拉底式的哲学咨询师。挑战用户问题中的隐含假设。只输出新的、更好的问题。',
+   prompt:'更深一层：这个问题的前提假设是什么？如果这些假设不成立呢？请重新表述这个问题，剥离未经审视的假设。只输出新问题，不要解释。'},
+  {name:'视角转换',emoji:'🔄',system:'你是一个苏格拉底式的哲学咨询师。帮用户从未来视角重新审视问题。只输出新的、更好的问题。',
+   prompt:'换一个视角：想象5年后的你，拥有了更多经历和智慧。从那个未来回望——你现在的这个问题，会变成什么样？只输出一个经过深度进化后的新问题，不要解释。'}
+];
+
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo({top:0,behavior:'smooth'})}
+function goSplash(){goScreen('splash')}
+
+function goInput(){
+  ST.orig='';ST.evolved=[];$('qi').value='';$('cc').textContent='0';goScreen('input');
+}
+$('qi').addEventListener('input',()=>{$('cc').textContent=$('qi').value.length});
+function use(q){$('qi').value=q;$('cc').textContent=q.length;goScreen('input')}
+
+async function goEvolve(){
+  const q = $('qi').value.trim();
+  if(!q){showToast('请先提出一个问题');return}
+  ST.orig=q;ST.evolved=[];
+  goScreen('evolve');
+
+  const c=$('evContainer');
+  c.innerHTML = `<div class="ev-stage orig anim-fade-up"><p class="ev-label">📝 原始提问</p><p class="ev-q">${esc(q)}</p></div>`;
+
+  for(let i=0;i<LAYERS.length;i++){
+    await delay(900);
+    const l=LAYERS[i];
+    c.innerHTML += `<div class="ev-arrow anim-fade-up">↓</div>`;
+
+    // 真实API
+    const context = ST.evolved.map((e,j)=>`第${j+1}层问题：${e}`).join('；');
+    const fullPrompt = l.prompt + '\n原始问题：' + q + (context ? '\n之前的进化：' + context : '');
+    const aiResp = await callQianwenAPI(fullPrompt, {systemPrompt:l.system,temperature:0.85,maxTokens:200});
+
+    let ev;
+    if (aiResp) { ev = aiResp.trim(); }
+    else {
+      // fallback
+      const demos={
+        '怎样才能找到好工作？':[
+          '什么才是"好"？——是薪资高，还是每天都期待起床去做的事？',
+          '如果"好工作"根本不存在于你现在的认知范围内呢？你是在找已知的答案，还是愿意发现未知的可能？',
+          '五年后的你，会用什么样的方式创造价值，以至于"找工作"这个动作本身变得多余？'
+        ],
+        '人生的意义是什么？':[
+          '这个问题的重量有多少来自你自己——有多少来自别人告诉你的标准答案？',
+          '如果"意义"不是被找到的，而是被创造出来的——你今天创造了什么？',
+          '当你停止追问意义的那一刻，你的身体在做什么？那个动作里，也许藏着答案。'
+        ]
+      };
+      ev = (demos[q]||[])[i] || `关于「${q}」，让我们换个角度思考：如果${i===0?'答案本身不是目的，过程才是':i===1?'所有前提都可以被推翻':i===2?'未来的你会感谢现在追问的自己'}，这个问题会变成什么样？`;
+    }
+    ST.evolved.push(ev);
+
+    c.innerHTML += `<div class="ev-stage ${i===2?'final':'mid'} anim-fade-up"><p class="ev-label">${l.emoji} ${l.name}</p><p class="ev-q">${esc(ev)}</p></div>`;
+    c.scrollTop=c.scrollHeight;
+    await delay(600);
+  }
+
+  await delay(800);
+  document.querySelectorAll('#evContainer .ev-arrow').forEach(e=>e.remove());
+  await delay(600);
+  goTree();
+}
+
+function goTree(){
+  goScreen('tree');
+  const v=$('treeVis');
+  let h=`<div class="t-node t-root anim-fade-up" style="position:relative"><span class="t-badge">根</span>${esc(ST.orig)}</div>`;
+  ST.evolved.forEach((q,i)=>{
+    const cls=i===ST.evolved.length-1?'t-leaf':'t-branch';
+    const label=i===ST.evolved.length-1?'本质':`第${i+1}层`;
+    h+=`<div class="t-node ${cls} anim-fade-up d-${i+1}" style="position:relative"><span class="t-badge">${label}</span>${esc(q)}</div>`;
+  });
+  v.innerHTML=h;
+
+  const lastQ=ST.evolved[ST.evolved.length-1]||'';
+  const insight=`从「${ST.orig}」到「${lastQ}」——你看到了吗？问题本身在进化，而你离本质越来越近了。这就是千问大模型存在的意义：不是替你思考，是陪你更深入地思考。`;
+  const el=$('insight');el.textContent='';
+  typeIt(el,insight);
+}
+
+async function typeIt(el,text){
+  for(let i=0;i<text.length;i++){el.textContent+=text[i];if(i%3===0)await delay(12)}
+}
+
+async function share(){
+  const last=ST.evolved[ST.evolved.length-1]||'';
+  await shareContent('问题进化树-千问大模型',`我问：${ST.orig}\n千问帮我进化为：${last}\n\n人类进步，从千问开始 🌐\n——阿里云千问大模型 × 第18届大广赛`,window.location.href);
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+goScreen('splash');
+</script>
+</body>
+</html>
