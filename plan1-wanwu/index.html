@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>万物皆有答案 - 千问大模型</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    /* === 页面特有样式 === */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      width: 100%;
+    }
+    .screen.active {
+      display: flex;
+    }
+
+    /* === 开场屏 === */
+    .intro-screen {
+      text-align: center;
+      gap: var(--space-xl);
+      padding-top: 15vh;
+    }
+
+    .intro-icon {
+      font-size: 4rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .intro-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--brand-gradient-soft);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .intro-subtitle {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    .intro-hint {
+      font-size: 0.8125rem;
+      color: var(--text-tertiary);
+      margin-top: var(--space-lg);
+    }
+
+    /* === 拍照/上传屏 === */
+    .capture-screen {
+      gap: var(--space-lg);
+      padding: var(--space-xl) 0;
+    }
+
+    .capture-area {
+      width: 100%;
+      aspect-ratio: 1;
+      max-width: 360px;
+      border: 2px dashed var(--border-subtle);
+      border-radius: var(--radius-xl);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+      background: rgba(255, 255, 255, 0.02);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .capture-area:hover {
+      border-color: var(--brand-orange);
+      background: rgba(255, 106, 0, 0.03);
+      box-shadow: var(--shadow-glow-orange);
+    }
+
+    .capture-area.has-image {
+      border-style: solid;
+      border-color: var(--brand-orange);
+    }
+
+    .capture-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+    }
+
+    .capture-icon {
+      font-size: 3rem;
+      opacity: 0.6;
+    }
+
+    .capture-text {
+      font-size: 0.9375rem;
+      color: var(--text-tertiary);
+    }
+
+    .capture-actions {
+      display: flex;
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .capture-actions .btn {
+      flex: 1;
+    }
+
+    /* === 扫描动画屏 === */
+    .scanning-screen {
+      text-align: center;
+      gap: var(--space-xl);
+    }
+
+    .scan-animation {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+
+    .scan-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid var(--brand-orange);
+      animation: scanPulse 2s ease-in-out infinite;
+      opacity: 0;
+    }
+
+    .scan-ring:nth-child(2) { animation-delay: 0.6s; }
+    .scan-ring:nth-child(3) { animation-delay: 1.2s; }
+
+    @keyframes scanPulse {
+      0% { transform: scale(0.5); opacity: 0.6; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .scan-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      animation: float 2s ease-in-out infinite;
+    }
+
+    .scan-status {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      animation: fadeText 1.5s ease-in-out infinite;
+    }
+
+    @keyframes fadeText {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* === 结果屏 === */
+    .result-screen {
+      gap: var(--space-lg);
+      padding: var(--space-xl) 0 120px;
+    }
+
+    .result-image-wrapper {
+      width: 240px;
+      height: 240px;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+
+    .result-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .result-image-wrapper::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-xl);
+      border: 2px solid transparent;
+      background: var(--brand-gradient) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0.5;
+    }
+
+    .result-monologue {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      width: 100%;
+      max-width: 360px;
+      position: relative;
+    }
+
+    .result-monologue::before {
+      content: '"';
+      position: absolute;
+      top: 8px;
+      left: 16px;
+      font-size: 3rem;
+      color: var(--brand-orange);
+      opacity: 0.3;
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    .monologue-text {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+      padding-left: var(--space-lg);
+      font-style: italic;
+      min-height: 80px;
+    }
+
+    .monologue-style-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      background: rgba(255, 106, 0, 0.15);
+      color: var(--brand-orange-light);
+      margin-top: var(--space-md);
+    }
+
+    .result-actions {
+      display: flex;
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .result-actions .btn {
+      flex: 1;
+    }
+
+    /* === 分享卡片 === */
+    .share-card {
+      width: 360px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .share-card-header {
+      padding: var(--space-lg);
+      background: var(--brand-gradient);
+      text-align: center;
+    }
+
+    .share-card-header h3 {
+      font-size: 1.125rem;
+      color: white;
+    }
+
+    .share-card-body {
+      padding: var(--space-lg);
+    }
+
+    .share-card-image {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+    }
+
+    .share-card-quote {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+      font-style: italic;
+      margin: var(--space-md) 0;
+      padding: var(--space-md);
+      background: rgba(255, 106, 0, 0.05);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--brand-orange);
+    }
+
+    .share-card-footer {
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .share-card-brand {
+      font-size: 0.8125rem;
+      color: var(--text-tertiary);
+    }
+
+    .share-card-slogan {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      background: var(--brand-gradient-soft);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* === 底部固定栏 === */
+    .bottom-fixed {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: var(--space-md) var(--space-lg);
+      padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
+      background: linear-gradient(to top, var(--bg-primary) 60%, transparent);
+      display: flex;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    /* === 风格选择器 === */
+    .style-selector {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .style-chip {
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--text-secondary);
+      transition: all var(--duration-fast) var(--ease-out);
+      white-space: nowrap;
+    }
+
+    .style-chip.active {
+      background: rgba(255, 106, 0, 0.15);
+      border-color: var(--brand-orange);
+      color: var(--brand-orange-light);
+    }
+
+    /* === 隐藏的input === */
+    #imageInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- 背景 -->
+  <div class="glow-orb glow-orb-orange"></div>
+  <div class="glow-orb glow-orb-blue"></div>
+
+  <!-- 粒子背景 -->
+  <div id="particles"></div>
+
+  <!-- ====== 开场屏 ====== -->
+  <div class="page-container screen active" id="introScreen">
+    <div class="brand-header fade-in">
+      <div class="logo-dot"></div>
+      <span class="brand-name">阿里云 × 千问大模型</span>
+    </div>
+
+    <div class="intro-screen">
+      <div class="intro-icon fade-in fade-in-delay-1">🔮</div>
+      <h1 class="intro-title fade-in fade-in-delay-2">万物皆有答案</h1>
+      <p class="intro-subtitle fade-in fade-in-delay-3">
+        拍下你身边任何一件物品<br>
+        听它用千问的声音，讲讲自己的故事
+      </p>
+      <div class="style-selector fade-in fade-in-delay-4" id="styleSelector">
+        <button class="style-chip active" data-style="literary">🎭 王家卫文艺</button>
+        <button class="style-chip" data-style="scifi">🚀 科幻未来</button>
+        <button class="style-chip" data-style="humor">🎪 脱口秀</button>
+        <button class="style-chip" data-style="poetic">🌸 诗意古风</button>
+      </div>
+      <p class="intro-hint fade-in fade-in-delay-5">
+        千问大模型驱动的多模态AI体验<br>
+        👆 先选风格，再开始
+      </p>
+    </div>
+
+    <div class="bottom-fixed fade-in fade-in-delay-5">
+      <button class="btn btn-primary btn-large" onclick="showCapture()" style="width:100%;max-width:360px">
+        📸 拍一张，万物皆答
+      </button>
+    </div>
+  </div>
+
+  <!-- ====== 拍照/上传屏 ====== -->
+  <div class="page-container screen" id="captureScreen">
+    <div class="brand-header">
+      <div class="logo-dot"></div>
+      <span class="brand-name">万物皆有答案</span>
+    </div>
+
+    <div class="capture-screen">
+      <h2 class="fade-in" style="text-align:center">选一件身边的物品</h2>
+      <p class="fade-in fade-in-delay-1" style="text-align:center;color:var(--text-tertiary)">
+        水杯、台灯、书、钥匙、盆栽...<br>任何日常之物，都有千问理解的故事
+      </p>
+
+      <div class="capture-area fade-in fade-in-delay-2" id="captureArea" onclick="document.getElementById('imageInput').click()">
+        <span class="capture-icon" id="captureIcon">📷</span>
+        <span class="capture-text" id="captureText">点击拍照或选择照片</span>
+      </div>
+
+      <input type="file" id="imageInput" accept="image/*" capture="environment" onchange="handleImageSelect(event)">
+
+      <div class="capture-actions fade-in fade-in-delay-3">
+        <button class="btn btn-secondary" onclick="document.getElementById('imageInput').click()">
+          🖼️ 相册
+        </button>
+        <button class="btn btn-primary" id="btnAnalyze" disabled onclick="startAnalysis()">
+          ✨ 千问解析
+        </button>
+      </div>
+
+      <button class="btn btn-ghost fade-in fade-in-delay-4" onclick="showIntro()">
+        ← 返回
+      </button>
+    </div>
+  </div>
+
+  <!-- ====== 扫描动画屏 ====== -->
+  <div class="page-container screen" id="scanningScreen">
+    <div class="scanning-screen">
+      <div class="scan-animation">
+        <div class="scan-ring"></div>
+        <div class="scan-ring"></div>
+        <div class="scan-ring"></div>
+        <div class="scan-icon">🔍</div>
+      </div>
+      <p class="scan-status" id="scanStatus">千问正在理解这个物品...</p>
+      <div class="loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 结果屏 ====== -->
+  <div class="page-container screen" id="resultScreen">
+    <div class="brand-header">
+      <div class="logo-dot"></div>
+      <span class="brand-name">千问大模型 · 万物皆有答案</span>
+    </div>
+
+    <div class="result-screen">
+      <div class="result-image-wrapper fade-in" id="resultImageWrapper">
+        <img id="resultImage" src="" alt="">
+      </div>
+
+      <div class="result-monologue fade-in fade-in-delay-1">
+        <p class="monologue-text" id="monologueText"></p>
+        <span class="monologue-style-tag" id="monologueStyleTag"></span>
+      </div>
+
+      <div class="result-actions fade-in fade-in-delay-2">
+        <button class="btn btn-secondary" onclick="retryWithNewStyle()">
+          🎭 换个风格
+        </button>
+        <button class="btn btn-primary" onclick="shareResult()">
+          📤 分享出去
+        </button>
+      </div>
+
+      <button class="btn btn-ghost fade-in fade-in-delay-3" onclick="showCapture()">
+        🔄 再拍一张
+      </button>
+    </div>
+
+    <div class="bottom-fixed">
+      <p class="fade-in" style="font-size:0.875rem;text-align:center">
+        <span style="background:var(--brand-gradient-soft);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">
+          千问一下，万物皆答
+        </span>
+        <span style="color:var(--text-tertiary);margin-left:8px">— 阿里云千问大模型</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- 隐藏的canvas用于生成分享图 -->
+  <canvas id="shareCanvas" style="display:none"></canvas>
+
+  <script src="../shared/utils.js"></script>
+  <script>
+    /* === 状态管理 === */
+    const state = {
+      currentScreen: 'introScreen',
+      selectedStyle: 'literary',
+      uploadedImage: null,
+      currentMonologue: '',
+      monologueHistory: []
+    };
+
+    /* === 风格定义 === */
+    const styles = {
+      literary: {
+        name: '王家卫文艺',
+        emoji: '🎭',
+        systemPrompt: '你是一个被赋予了灵魂的日常物品。用王家卫电影般的文艺腔调，以第一人称讲述你的存在。语速缓慢，充满意象，带着一种温柔的孤独感。在150字以内。'
+      },
+      scifi: {
+        name: '科幻未来',
+        emoji: '🚀',
+        systemPrompt: '你是一个来自未来的智能物品，拥有超越时代的自我意识。用科幻小说的语气，以第一人称介绍你的功能和使命。充满科技感和未来主义色彩。在150字以内。'
+      },
+      humor: {
+        name: '脱口秀',
+        emoji: '🎪',
+        systemPrompt: '你是一个会吐槽的日常物品，用脱口秀演员的方式，以第一人称调侃自己的日常和与人类的相处。幽默风趣，有梗，让人会心一笑。在150字以内。'
+      },
+      poetic: {
+        name: '诗意古风',
+        emoji: '🌸',
+        systemPrompt: '你是一个拥有古典灵魂的物品，用中国古风诗意的方式，以第一人称吟诵你的存在。可以是半文半白，有意境，有留白，像一首小诗。在150字以内。'
+      }
+    };
+
+    /* === 模拟AI独白（比赛时替换为真实千问API调用） === */
+    // 每个物品在不同风格下的独白预设（演示用）
+    const demoMonologues = {
+      cup: {
+        literary: '每天下午三点，她准时端起我。水温刚好，45度，她最喜欢的温度。我看着她的嘴唇轻轻碰到杯沿，那一瞬间，整个世界都安静下来。有些温度，不是用来测量的，是用来记住的。',
+        scifi: '我是H2O分子重组终端（俗称水杯）。内置量子温控系统，能精准地将液体维持在用户神经信号最舒适的45°C。碳基生命叫这"温暖"，在我的认知里，这是一次完美的热力学平衡态。',
+        humor: '大家好，我是这个工位上最敬业的员工——水杯。全年无休，随叫随到，比老板还靠谱。唯一的烦恼是，主人总拿我泡枸杞，我一个不锈钢杯，装着养生的心，这合理吗？',
+        poetic: '瓷身素白，盛清泉一盏。炉火炼我以形，岁月赠我以温。世人饮水，不过解渴；我却在每一次唇齿相亲间，藏了一整个春日午后的慢时光。'
+      },
+      plant: {
+        literary: '我站在窗台上看了他三年。他每天早晨打开窗帘的时候，是我最期待的一秒。他从来不知道，我偷偷把他的咖啡香存进了每一片叶子里。有些陪伴，不需要开口。',
+        scifi: '生物光合单元 #47B。碳基生命形态，执行标准光合程序已1095个地球日。我的根系网络持续监测着这个房间的CO₂浓度，叶片表面的纳米结构将光能转化率提升至生物极限。他叫我"绿萝"。',
+        humor: '没错，我就是那盆绿萝。养我的大哥，麻烦你看看我——叶尖都黄了！不是我说你，养了三年还不知道我喜阴，你简历上写"热爱生活"是认真的吗？',
+        poetic: '翠蔓从盆沿垂下，像时光写下的行书。不言不语间，我把窗外的日光、檐下的雨声，都收进了每一片心形的叶子里。谁是养花人？也许我才是那个，温柔守候着这座屋子的。'
+      },
+      keyboard: {
+        literary: '凌晨两点十七分，他的手指再次落在我的身上。我熟悉每一个按键的凹陷，就像熟悉他的犹豫。删除键被按了最多次，那是一个写作者最诚实的部分。',
+        scifi: '人机交互矩阵终端 v9.7。104个触觉反馈节点，机械轴体采样率8000Hz。我将他每一次击键转化为数字信号，在0.3毫秒内传输至CPU。但那些写了又删的文字，不在我的处理逻辑之内。',
+        humor: '我是键盘，但我不是普通的键盘——我是一个承受了太多的键盘。主人用我写代码、打游戏、吃薯片、擦手，我的缝隙里藏着一个零食博物馆。请给我一份工伤鉴定，谢谢。',
+        poetic: '黑白键错落，如琴如筝。指尖起落间，万言千语从我的身躯流过。我记下了每一次犹豫的停顿，每一次笃定的回车。所谓书写，不过是把心的形状，敲成字的模样。'
+      },
+      lamp: {
+        literary: '天黑之后，这个房间就只有我和他了。我的光是橙黄色的，恰好是他喜欢的颜色。有时候他对着屏幕发呆，我就把光调暗一点，好像在陪他一起沉默。',
+        scifi: '光子发射阵列台灯型号L-882。色温调节范围2700K至6500K，覆盖从暖黄昏到冷白昼的全光谱。当前用户偏好暖光模式，我已将此写入长期记忆区——虽然他没有要求过。',
+        humor: '我是这屋里最懂光的人。主人的脸在我的柔光下至少年轻五岁，这就是为什么他每次视频会议都坐我旁边。建议我的功能栏加上"兼职美颜灯"，工资另算。',
+        poetic: '一盏孤灯，照见案头书卷。光晕如月，笼住半室安宁。世人点灯为驱暗，我亮起来，只为等你归。灯下的人啊，你可知道，你低头的样子，是我见过最美的夜色。'
+      },
+      phone: {
+        literary: '我见过他最脆弱的样子——凌晨三点刷着前任的朋友圈，然后把我扔到枕头底下。我什么也做不了，只能默默地把屏幕亮度调到最低。',
+        scifi: '便携式量子通信终端（商用人称手机）。搭载神经引擎芯片，每秒可处理15.8万亿次运算。我实时感知用户的生物信号，但有些数据——比如他为什么盯着那条消息看了4分37秒——超出了我的推理框架。',
+        humor: '救命，我的主人又把我掉地上了！本季度第三次了！屏幕碎了但心更碎。他说我是"生产力工具"，结果我80%的电量都花在了短视频和外卖APP上。这就是你们人类的"生产力"？',
+        poetic: '一掌方圆，纳乾坤世界。我是一座桥，连接着这端孤独的心和对岸熙攘的人间。你在我身上划过的每一下，都是向远方投递的温度。只是别忘了，桥这边的风景，也值得看一眼。'
+      },
+      book: {
+        literary: '书脊已经有些松散，说明被翻了很多遍。最后一页的折角还在——那是她最喜欢的一段话。她在这本书里藏了一片银杏叶，那是一个秋天的暗号。',
+        scifi: '纸质知识存储介质。我的819个页面以纤维素为基础载体，以油墨为信息编码。与电子存储不同，我的数据不需要电能就能被读取，而且——据我所知——纸张的气味也属于信息的一部分。',
+        humor: '我是书，但在这个家里，我更多时候被当作——杯垫、泡面盖、拍照道具。主人买我的时候说"要多读书"，现在我已经落灰半年了。知识改变命运？先改变我的灰尘厚度吧。',
+        poetic: '页页墨香，字字珠玑。摊开来是一整个世界，阖上后是半枕清梦。书若有灵，大概是愿意被读旧的——那些卷边、折痕、茶渍，都是一个人在某段时光里，认真活过的证明。'
+      }
+    };
+
+    function getObjectType(imageName) {
+      // 简化版：根据文件名关键词匹配（比赛时由千问视觉识别）
+      const name = imageName.toLowerCase();
+      if (name.includes('杯') || name.includes('cup') || name.includes('mug')) return 'cup';
+      if (name.includes('植物') || name.includes('花') || name.includes('plant') || name.includes('leaf')) return 'plant';
+      if (name.includes('键盘') || name.includes('keyboard')) return 'keyboard';
+      if (name.includes('灯') || name.includes('lamp') || name.includes('light')) return 'lamp';
+      if (name.includes('手机') || name.includes('phone')) return 'phone';
+      if (name.includes('书') || name.includes('book')) return 'book';
+      // 随机返回以展示效果
+      return randomPick(['cup', 'plant', 'keyboard', 'lamp', 'phone', 'book']);
+    }
+
+    /* === 屏幕切换 === */
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      state.currentScreen = screenId;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showIntro() {
+      switchScreen('introScreen');
+    }
+
+    function showCapture() {
+      switchScreen('captureScreen');
+      // 重置
+      state.uploadedImage = null;
+      document.getElementById('captureArea').classList.remove('has-image');
+      document.getElementById('captureIcon').style.display = '';
+      document.getElementById('captureText').textContent = '点击拍照或选择照片';
+      document.getElementById('btnAnalyze').disabled = true;
+      // 清除之前的预览
+      const existingImg = document.querySelector('#captureArea img');
+      if (existingImg) existingImg.remove();
+    }
+
+    function showScanning() {
+      switchScreen('scanningScreen');
+    }
+
+    function showResult() {
+      switchScreen('resultScreen');
+    }
+
+    /* === 风格选择 === */
+    document.getElementById('styleSelector').addEventListener('click', (e) => {
+      const chip = e.target.closest('.style-chip');
+      if (!chip) return;
+      document.querySelectorAll('#styleSelector .style-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      state.selectedStyle = chip.dataset.style;
+    });
+
+    /* === 图片处理 === */
+    function handleImageSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        state.uploadedImage = e.target.result;
+        // 预览
+        const captureArea = document.getElementById('captureArea');
+        const existingImg = document.querySelector('#captureArea img');
+        if (existingImg) existingImg.remove();
+
+        const img = document.createElement('img');
+        img.src = state.uploadedImage;
+        captureArea.appendChild(img);
+        captureArea.classList.add('has-image');
+        document.getElementById('captureIcon').style.display = 'none';
+        document.getElementById('captureText').textContent = '点击更换照片';
+        document.getElementById('btnAnalyze').disabled = false;
+      };
+      reader.readAsDataURL(file);
+
+      // 存储文件名用于对象识别
+      state.imageFileName = file.name;
+    }
+
+    /* === 核心：AI分析流程 === */
+    async function startAnalysis() {
+      if (!state.uploadedImage) return;
+
+      showScanning();
+
+      const statusEl = document.getElementById('scanStatus');
+      const statusMessages = [
+        '千问正在识别物品...',
+        '分析材质与形态...',
+        '理解物品的故事语境...',
+        '注入' + styles[state.selectedStyle].name + '灵魂...',
+        '生成独白中...'
+      ];
+
+      for (let i = 0; i < statusMessages.length; i++) {
+        statusEl.textContent = statusMessages[i];
+        await delay(800 + Math.random() * 400);
+      }
+
+      // === AI 生成独白 ===
+      // 比赛时替换为：千问视觉API识别物体 → 千问文本API生成独白
+      const objectType = getObjectType(state.imageFileName || 'random');
+      const styleData = styles[state.selectedStyle];
+
+      // 尝试调用千问API
+      const prompt = styleData.systemPrompt + '\n请以第一人称写一段独白，物品类型是：' + objectType;
+      const aiResponse = await callQianwenAPI(prompt, { temperature: 0.9 });
+
+      // 使用AI响应或演示数据
+      const monologue = aiResponse || demoMonologues[objectType]?.[state.selectedStyle]
+        || '我在这个空间里存在着，日复一日。被使用，被放置，被偶尔注视。但我有自己的温度，自己的节奏。你不必知道，因为我的故事，只属于我。';
+
+      state.currentMonologue = monologue;
+      state.currentObjectType = objectType;
+
+      // 渲染结果
+      document.getElementById('resultImage').src = state.uploadedImage;
+      document.getElementById('monologueText').textContent = monologue;
+      document.getElementById('monologueStyleTag').textContent = styleData.emoji + ' ' + styleData.name + '风格';
+
+      await delay(500);
+      showResult();
+    }
+
+    /* === 换个风格重试 === */
+    async function retryWithNewStyle() {
+      // 切换到下一个风格
+      const styleKeys = Object.keys(styles);
+      const currentIdx = styleKeys.indexOf(state.selectedStyle);
+      const nextStyle = styleKeys[(currentIdx + 1) % styleKeys.length];
+      state.selectedStyle = nextStyle;
+
+      // 更新风格选择器高亮（如果在开场页）
+      document.querySelectorAll('#styleSelector .style-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.style === nextStyle);
+      });
+
+      // 重新生成
+      showScanning();
+      const statusEl = document.getElementById('scanStatus');
+      statusEl.textContent = '用' + styles[nextStyle].name + '重新演绎...';
+
+      await delay(1500);
+
+      const styleData = styles[nextStyle];
+      const prompt = styleData.systemPrompt + '\n请以第一人称写一段独白，物品类型是：' + (state.currentObjectType || 'object');
+      const aiResponse = await callQianwenAPI(prompt, { temperature: 0.9 });
+
+      const monologue = aiResponse || demoMonologues[state.currentObjectType]?.[nextStyle]
+        || '换一种语气，故事就变了。这就是千问大模型的力量——同一个世界，不同的理解。';
+
+      state.currentMonologue = monologue;
+      document.getElementById('monologueText').textContent = monologue;
+      document.getElementById('monologueStyleTag').textContent = styleData.emoji + ' ' + styleData.name + '风格';
+
+      await delay(300);
+      showResult();
+    }
+
+    /* === 分享 === */
+    async function shareResult() {
+      const shareText = `千问了一下，万物皆有答案 ✨\n「${state.currentMonologue}」\n—— 阿里云千问大模型 × 第18届大广赛`;
+      await shareContent(
+        '万物皆有答案 - 千问大模型',
+        shareText,
+        window.location.href
+      );
+    }
+
+    /* === 生成分享卡片图片 === */
+    function generateShareCard() {
+      const canvas = document.getElementById('shareCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 750;
+      canvas.height = 1334;
+
+      // 背景
+      const bgGrad = ctx.createLinearGradient(0, 0, 750, 1334);
+      bgGrad.addColorStop(0, '#0A0E1A');
+      bgGrad.addColorStop(1, '#111827');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 750, 1334);
+
+      // 顶部品牌条
+      const headerGrad = ctx.createLinearGradient(0, 0, 750, 0);
+      headerGrad.addColorStop(0, '#FF6A00');
+      headerGrad.addColorStop(1, '#0068FF');
+      ctx.fillStyle = headerGrad;
+      ctx.fillRect(0, 0, 750, 80);
+
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 32px -apple-system, sans-serif';
+      ctx.fillText('🌐 千问一下，万物皆答', 40, 55);
+
+      // 图片
+      if (state.uploadedImage) {
+        const img = new Image();
+        img.src = state.uploadedImage;
+        img.onload = () => {
+          const imgSize = 500;
+          const imgX = (750 - imgSize) / 2;
+          const imgY = 140;
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(imgX, imgY, imgSize, imgSize, 24);
+          ctx.clip();
+          ctx.drawImage(img, imgX, imgY, imgSize, imgSize);
+          ctx.restore();
+
+          // 独白
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = '28px -apple-system, sans-serif';
+          const lines = wrapText(ctx, state.currentMonologue, 650);
+          let y = imgY + imgSize + 60;
+          lines.forEach(line => {
+            ctx.fillText(line, 50, y);
+            y += 44;
+          });
+
+          // 风格标签
+          y += 30;
+          ctx.fillStyle = 'rgba(255,106,0,0.2)';
+          ctx.beginPath();
+          ctx.roundRect(50, y - 32, 220, 40, 20);
+          ctx.fill();
+          ctx.fillStyle = '#FF8C3A';
+          ctx.font = '22px -apple-system, sans-serif';
+          ctx.fillText('🎭 ' + styles[state.selectedStyle].name, 70, y - 4);
+
+          // 底部
+          ctx.fillStyle = 'rgba(255,255,255,0.4)';
+          ctx.font = '20px -apple-system, sans-serif';
+          ctx.fillText('阿里云千问大模型 · 第18届大广赛', 50, 1280);
+
+          // 保存
+          const link = document.createElement('a');
+          link.download = '万物皆有答案_千问大模型.png';
+          link.href = canvas.toDataURL();
+          link.click();
+          showToast('分享卡片已保存');
+        };
+      }
+    }
+
+    function wrapText(ctx, text, maxWidth) {
+      const lines = [];
+      let currentLine = '';
+      for (let char of text) {
+        const testLine = currentLine + char;
+        if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = char;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      if (currentLine) lines.push(currentLine);
+      return lines;
+    }
+
+    /* === 初始化 === */
+    function init() {
+      // 添加粒子背景
+      const particlesContainer = document.getElementById('particles');
+      const particles = createParticles(25);
+      particlesContainer.appendChild(particles);
+    }
+
+    init();
+  </script>
+</body>
+</html>
