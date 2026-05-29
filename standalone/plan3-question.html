@@ -821,7 +821,7 @@ const MODELS = {
 async function callQianwenAPI(prompt, options = {}) {
   // 未配置API Key时，返回null让调用方使用演示数据
   if (!DASHSCOPE_API_KEY) {
-    console.warn('[千问API] 未配置API Key，使用演示数据。请在 shared/utils.js 中设置 DASHSCOPE_API_KEY');
+    console.warn('[千问API] 未配置API Key，使用演示数据。');
     return null;
   }
 
