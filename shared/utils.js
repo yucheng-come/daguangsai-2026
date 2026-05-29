@@ -191,7 +191,7 @@ function getQueryParam(key) {
  */
 
 // ===== 配置区域 =====
-const DASHSCOPE_API_KEY = '';  // ← 在此填入你的API Key
+const DASHSCOPE_API_KEY = 'sk-cb0ec1cc42fa412b83a934ebf2f43f81';
 const DASHSCOPE_BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
 
 // 模型配置

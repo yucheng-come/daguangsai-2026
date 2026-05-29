@@ -1,827 +1,417 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>你的新同事不是人 - 千问大模型</title>
-  <link rel="stylesheet" href="../shared/styles.css">
-  <style>
-    /* === 页面特有样式 === */
-    .screen {
-      display: none;
-      flex-direction: column;
-      min-height: 100vh;
-      width: 100%;
-    }
-    .screen.active { display: flex; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>你的新同事不是人 - 千问大模型</title>
+<link rel="stylesheet" href="../shared/styles.css">
+<style>
+  .screen{display:none;flex-direction:column;min-height:100vh;min-height:100dvh}
+  .screen.on{display:flex}
 
-    /* === 开场屏 === */
-    .intro-screen-plan2 {
-      text-align: center;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-xl);
-      padding-top: 12vh;
-    }
+  /* === 开场 === */
+  .splash-p2{justify-content:center;align-items:center;text-align:center;gap:32px;padding-top:8vh}
+  .badge-p2{
+    display:inline-block;padding:6px 16px;border-radius:var(--r-full);
+    font-size:0.75rem;font-weight:600;letter-spacing:0.04em;
+    background:rgba(0,104,255,0.1);color:var(--c-blue-bright);
+    border:1px solid rgba(0,104,255,0.2);
+  }
+  .splash-icon-p2{font-size:80px;animation:float 3.5s ease-in-out infinite;filter:drop-shadow(0 0 40px rgba(0,104,255,0.3))}
+  .colleague-cards{display:flex;align-items:center;gap:20px;justify-content:center}
+  .c-card{
+    width:72px;height:72px;border-radius:var(--r-lg);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2rem;background:var(--bg-glass);
+    border:1px solid rgba(255,255,255,0.06);
+    transition:all 0.4s var(--ease-out-expo);
+  }
+  .c-card.ai{
+    border-color:rgba(255,106,0,0.3);
+    background:rgba(255,106,0,0.06);
+    animation:pulse-glow 2.5s ease-in-out infinite;
+  }
+  .c-plus{font-size:1.5rem;font-weight:700;color:var(--t-3)}
 
-    .badge {
-      display: inline-block;
-      padding: 6px 16px;
-      border-radius: var(--radius-full);
-      font-size: 0.8125rem;
-      font-weight: 600;
-      background: rgba(0, 104, 255, 0.15);
-      color: #60A5FA;
-    }
+  /* === 任务屏 === */
+  .task-screen-p2{gap:20px;padding-top:8px}
+  .task-progress-bar{
+    display:flex;gap:3px;width:100%;
+  }
+  .tpb-dot{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.06);transition:all 0.5s var(--ease-out-expo)}
+  .tpb-dot.done{background:var(--c-orange)}
+  .tpb-dot.cur{background:var(--c-orange);box-shadow:0 0 8px rgba(255,106,0,0.4)}
+  .task-header-p2{text-align:center}
+  .task-num{font-size:0.7rem;font-weight:600;letter-spacing:0.06em;color:var(--t-3);text-transform:uppercase;margin-bottom:4px}
+  .task-name{font-size:1.25rem;font-weight:700}
+  .task-brief-card{
+    background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+    border-radius:var(--r-lg);padding:20px;text-align:center;
+  }
+  .task-brief-card p{font-size:0.875rem;color:var(--t-2)}
+  .output-panel{
+    background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);
+    border-radius:var(--r-lg);padding:24px;min-height:160px;
+  }
+  .output-panel.loading-state{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--t-3);
+  }
+  .output-content{
+    font-size:0.875rem;line-height:1.9;color:var(--t-1);
+    white-space:pre-wrap;font-family:'SF Mono','Menlo','Monaco',monospace;
+  }
+  .task-actions-p2{display:flex;gap:10px}
+  .task-actions-p2 .btn{flex:1}
 
-    .intro-title-plan2 {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.3;
-    }
+  /* === 结果 === */
+  .result-p2{gap:24px;align-items:center;padding-bottom:120px}
+  .result-hero{text-align:center;width:100%}
+  .radar-wrap{
+    width:260px;height:260px;margin:0 auto;position:relative;
+  }
+  .radar-wrap canvas{width:100%;height:100%}
+  .score-row{
+    display:flex;gap:24px;justify-content:center;margin:16px 0;
+  }
+  .score-item{text-align:center}
+  .score-val{font-size:2rem;font-weight:800;color:var(--c-blue-bright)}
+  .score-lbl{font-size:0.7rem;color:var(--t-3);letter-spacing:0.04em}
+  .skill-row{
+    display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  }
+  .skill-badge{
+    padding:8px 16px;border-radius:var(--r-full);
+    font-size:0.75rem;font-weight:500;
+    background:rgba(0,104,255,0.06);color:var(--c-blue-bright);
+    border:1px solid rgba(0,104,255,0.12);
+  }
+  .verdict-card{
+    background:rgba(255,106,0,0.03);border:1px solid rgba(255,106,0,0.12);
+    border-radius:var(--r-xl);padding:32px;text-align:center;width:100%;
+    backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  }
+  .verdict-title{font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
 
-    .highlight-orange {
-      background: var(--brand-gradient-soft);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+  .dots-p2{display:flex;gap:5px;justify-content:center}
+  .dots-p2 span{width:6px;height:6px;border-radius:50%;background:var(--c-blue);animation:dotBounce 1.4s ease-in-out infinite both}
+  .dots-p2 span:nth-child(1){animation-delay:-0.32s}
+  .dots-p2 span:nth-child(2){animation-delay:-0.16s}
+  @keyframes dotBounce{0%,80%,100%{transform:scale(0.3);opacity:0.3}40%{transform:scale(1);opacity:1}}
 
-    .highlight-blue {
-      color: #60A5FA;
+  /* === 桌面端 === */
+  @media (min-width: 768px) {
+    .c-card{width:88px;height:88px;font-size:2.5rem}
+    .radar-wrap{width:320px;height:320px}
+    .output-panel{min-height:200px;padding:32px}
+    .output-content{font-size:0.9375rem}
+    .verdict-title{font-size:2rem}
+  }
+  @media (min-width: 1024px) {
+    .splash-p2{gap:40px}
+    .task-screen-p2{
+      display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto auto;gap:20px;align-items:start;
     }
-
-    .avatar-row {
-      display: flex;
-      align-items: center;
-      gap: var(--space-lg);
-      justify-content: center;
+    .task-screen-p2 .task-progress-bar{grid-column:1/-1}
+    .task-screen-p2 .task-header-p2{grid-column:1}
+    .task-screen-p2 .task-brief-card{grid-column:2;grid-row:3;margin:0}
+    .task-screen-p2 .output-panel{grid-column:1;grid-row:4;min-height:280px}
+    .task-screen-p2 .task-actions-p2{grid-column:2;grid-row:4;align-self:end;flex-direction:column}
+    .result-p2{
+      display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;
     }
-
-    .avatar {
-      width: 64px;
-      height: 64px;
-      border-radius: var(--radius-full);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.75rem;
-      border: 3px solid var(--border-subtle);
-      background: var(--bg-card);
-    }
-
-    .avatar-ai {
-      border-color: var(--brand-orange);
-      background: rgba(255, 106, 0, 0.1);
-      animation: glowPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes glowPulse {
-      0%, 100% { box-shadow: 0 0 10px rgba(255, 106, 0, 0.2); }
-      50% { box-shadow: 0 0 25px rgba(255, 106, 0, 0.4); }
-    }
-
-    .vs-text {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-tertiary);
-    }
-
-    /* === 任务屏 === */
-    .task-screen {
-      padding: var(--space-lg);
-      gap: var(--space-lg);
-    }
-
-    .task-progress {
-      display: flex;
-      gap: 4px;
-      width: 100%;
-    }
-
-    .task-progress-dot {
-      flex: 1;
-      height: 4px;
-      border-radius: 2px;
-      background: var(--border-subtle);
-      transition: all var(--duration-normal) var(--ease-out);
-    }
-
-    .task-progress-dot.done {
-      background: var(--brand-orange);
-    }
-
-    .task-progress-dot.current {
-      background: var(--brand-orange);
-      box-shadow: 0 0 8px rgba(255, 106, 0, 0.5);
-    }
-
-    .task-header {
-      text-align: center;
-      margin-bottom: 8px;
-    }
-
-    .task-number {
-      font-size: 0.8125rem;
-      color: var(--text-tertiary);
-      margin-bottom: 4px;
-    }
-
-    .task-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .task-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: var(--space-xl);
-      text-align: center;
-    }
-
-    .task-brief {
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: var(--space-lg);
-      padding: var(--space-md);
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: var(--radius-md);
-    }
-
-    .task-output {
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: var(--radius-md);
-      padding: var(--space-lg);
-      text-align: left;
-      font-size: 0.875rem;
-      line-height: 1.7;
-      color: var(--text-primary);
-      min-height: 120px;
-      max-height: 300px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      font-family: 'SF Mono', 'Menlo', monospace;
-      border: 1px solid var(--border-subtle);
-    }
-
-    .task-output.loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-tertiary);
-    }
-
-    .task-actions {
-      display: flex;
-      gap: var(--space-md);
-      width: 100%;
-      margin-top: 8px;
-    }
-
-    .task-actions .btn { flex: 1; }
-
-    /* === 结果屏 === */
-    .result-screen-plan2 {
-      align-items: center;
-      padding: var(--space-xl) var(--space-lg) 120px;
-      gap: var(--space-lg);
-    }
-
-    .radar-chart-container {
-      width: 280px;
-      height: 280px;
-      position: relative;
-      margin: var(--space-lg) auto;
-    }
-
-    .result-score-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: var(--space-lg);
-      width: 100%;
-      text-align: center;
-    }
-
-    .final-slogan {
-      font-size: 1.5rem;
-      font-weight: 800;
-      margin: var(--space-lg) 0;
-    }
-
-    .skill-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-sm);
-      justify-content: center;
-      margin: var(--space-md) 0;
-    }
-
-    .skill-tag {
-      padding: 8px 16px;
-      border-radius: var(--radius-full);
-      font-size: 0.8125rem;
-      font-weight: 500;
-      background: rgba(0, 104, 255, 0.1);
-      color: #60A5FA;
-    }
-
-    /* === 新同事入场动画 === */
-    .colleague-card {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 106, 0, 0.2);
-      border-radius: var(--radius-lg);
-      padding: var(--space-xl);
-      width: 100%;
-      text-align: center;
-      animation: slideUp 0.6s var(--ease-spring);
-    }
-
-    .colleague-avatar-large {
-      width: 80px;
-      height: 80px;
-      border-radius: var(--radius-full);
-      background: var(--brand-gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      margin: 0 auto var(--space-md);
-      box-shadow: var(--shadow-glow-orange);
-    }
-
-    .colleague-name {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .colleague-title {
-      font-size: 0.875rem;
-      color: var(--brand-orange-light);
-    }
-
-    .colleague-stats {
-      display: flex;
-      gap: var(--space-lg);
-      justify-content: center;
-      margin: var(--space-md) 0;
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #60A5FA;
-    }
-
-    .stat-label {
-      font-size: 0.75rem;
-      color: var(--text-tertiary);
-    }
-  </style>
+    .result-p2 .result-hero{grid-column:1/-1}
+    .result-p2 .score-row{grid-column:1}
+    .result-p2 .radar-wrap{grid-column:2;grid-row:3/5;width:380px;height:380px}
+    .result-p2 .skill-row{grid-column:1}
+    .result-p2 .verdict-card{grid-column:1/-1}
+    .result-p2 .task-actions-p2{grid-column:1/-1}
+    .radar-wrap{width:360px;height:360px}
+    .verdict-title{font-size:2.25rem}
+  }
+  @media (min-width: 1440px) {
+    .radar-wrap{width:420px;height:420px}
+    .task-screen-p2{max-width:800px;margin:0 auto}
+    .result-p2{max-width:800px;margin:0 auto}
+  }
+</style>
 </head>
 <body>
-  <div class="glow-orb glow-orb-orange"></div>
-  <div class="glow-orb glow-orb-blue"></div>
-  <div id="particles"></div>
+<div class="bg-grid"></div>
+<div class="glow-orb glow-orb-o"></div>
+<div class="glow-orb glow-orb-b"></div>
 
-  <!-- ====== 开场屏 ====== -->
-  <div class="page-container screen active" id="introScreen">
-    <div class="brand-header fade-in">
-      <div class="logo-dot"></div>
-      <span class="brand-name">阿里云 × 千问大模型</span>
-    </div>
-
-    <div class="intro-screen-plan2">
-      <span class="badge fade-in">🧪 沉浸式互动测试</span>
-      <h1 class="intro-title-plan2 fade-in fade-in-delay-1">
-        你的<span class="highlight-orange">新同事</span><br>不是人
-      </h1>
-      <p class="fade-in fade-in-delay-2" style="color:var(--text-secondary);max-width:320px;line-height:1.8">
-        千问大模型正式入职你的团队<br>
-        作为Team Leader，请完成6项入职测试<br>
-        看看这位AI同事到底几斤几两
-      </p>
-
-      <div class="avatar-row fade-in fade-in-delay-3">
-        <div class="avatar">👤</div>
-        <span class="vs-text">+</span>
-        <div class="avatar avatar-ai">🤖</div>
-      </div>
-
-      <p class="fade-in fade-in-delay-4" style="font-size:0.8125rem;color:var(--text-tertiary)">
-        6个任务 · 约2分钟 · 全程由千问大模型实时响应
-      </p>
-    </div>
-
-    <div class="bottom-fixed fade-in fade-in-delay-5">
-      <button class="btn btn-primary btn-large" onclick="startOnboarding()" style="width:100%;max-width:360px">
-        🚀 开始入职测试
-      </button>
+<!-- ====== 开场 ====== -->
+<div class="page-wrap screen on" id="splash">
+  <div class="nav-bar anim-fade-up">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">阿里云 × 千问</span></div>
+  </div>
+  <div class="splash-p2">
+    <span class="badge-p2 anim-scale-in">🧪 沉浸式互动测试</span>
+    <h1 class="anim-fade-up d-1" style="font-size:2.25rem;font-weight:900;letter-spacing:-0.04em;line-height:1.15;text-align:center">
+      你的<span class="text-gradient">新同事</span><br>不是人
+    </h1>
+    <p class="anim-fade-up d-2" style="color:var(--t-2);max-width:300px;text-align:center">
+      千问大模型正式入职你的团队<br>作为Team Leader，完成6项入职测试<br>看看这位AI同事到底几斤几两
+    </p>
+    <div class="colleague-cards anim-scale-in d-3">
+      <div class="c-card">👤</div>
+      <span class="c-plus">+</span>
+      <div class="c-card ai">🤖</div>
     </div>
   </div>
+  <div class="bottom-bar anim-fade-up d-4">
+    <button class="btn btn-primary btn-lg btn-block" onclick="start()" style="max-width:360px;margin:0 auto">
+      🚀 开始入职测试
+    </button>
+  </div>
+</div>
 
-  <!-- ====== 任务屏 ====== -->
-  <div class="page-container screen" id="taskScreen">
-    <div class="brand-header">
-      <div class="logo-dot"></div>
-      <span class="brand-name">入职测试 · 第 <span id="taskIndexDisplay">1</span>/6 项</span>
+<!-- ====== 任务 ====== -->
+<div class="page-wrap screen" id="task">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">入职测试 · <span id="ti">1</span>/6</span></div>
+  </div>
+  <div class="task-screen-p2">
+    <div class="task-progress-bar" id="tpb">
+      <div class="tpb-dot cur"></div><div class="tpb-dot"></div><div class="tpb-dot"></div>
+      <div class="tpb-dot"></div><div class="tpb-dot"></div><div class="tpb-dot"></div>
     </div>
-
-    <div class="task-screen">
-      <div class="task-progress" id="taskProgress">
-        <div class="task-progress-dot current"></div>
-        <div class="task-progress-dot"></div>
-        <div class="task-progress-dot"></div>
-        <div class="task-progress-dot"></div>
-        <div class="task-progress-dot"></div>
-        <div class="task-progress-dot"></div>
-      </div>
-
-      <div class="task-header">
-        <p class="task-number" id="taskNumberLabel">任务一</p>
-        <h2 class="task-title" id="taskTitle">写周报</h2>
-      </div>
-
-      <div class="task-card">
-        <p class="task-brief" id="taskBrief">
-          给这位新同事布置本周周报任务，看看TA的总结和表达能力。
-        </p>
-        <div class="task-output loading" id="taskOutput">
-          <span>等待千问响应...</span>
-        </div>
-      </div>
-
-      <div class="task-actions">
-        <button class="btn btn-secondary" id="btnSkip" onclick="skipTask()">
-          ⏭️ 跳过
-        </button>
-        <button class="btn btn-primary" id="btnNext" onclick="nextTask()" disabled>
-          下一项 →
-        </button>
-      </div>
+    <div class="task-header-p2">
+      <p class="task-num" id="tn">任务一</p>
+      <h2 class="task-name" id="tt">📝 写周报</h2>
+    </div>
+    <div class="task-brief-card">
+      <p id="tb">给这位新同事布置本周周报任务，看看TA的总结和表达能力。</p>
+    </div>
+    <div class="output-panel loading-state" id="out">
+      <div class="dots-p2"><span></span><span></span><span></span></div>
+      <span style="color:var(--t-3);font-size:0.875rem">千问正在处理...</span>
+    </div>
+    <div class="task-actions-p2">
+      <button class="btn btn-glass" id="btnSkip" onclick="skip()">⏭️ 跳过</button>
+      <button class="btn btn-primary" id="btnNext" onclick="next()" disabled>下一项 →</button>
     </div>
   </div>
+</div>
 
-  <!-- ====== 结果屏 ====== -->
-  <div class="page-container screen" id="resultScreen">
-    <div class="brand-header">
-      <div class="logo-dot"></div>
-      <span class="brand-name">入职测试报告</span>
+<!-- ====== 结果 ====== -->
+<div class="page-wrap screen" id="result">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">入职测试报告</span></div>
+  </div>
+  <div class="result-p2">
+    <div class="result-hero anim-scale-in">
+      <div style="font-size:64px;margin-bottom:16px">🤖</div>
+      <h3>千问 QianWen</h3>
+      <p style="color:var(--c-orange-bright);font-size:0.875rem">AI 全栈同事 · 阿里云出品</p>
     </div>
-
-    <div class="result-screen-plan2">
-      <div class="colleague-card fade-in">
-        <div class="colleague-avatar-large">🤖</div>
-        <h3 class="colleague-name">千问 QianWen</h3>
-        <p class="colleague-title">AI 全栈同事 · 阿里云荣誉出品</p>
-        <div class="colleague-stats">
-          <div class="stat-item">
-            <div class="stat-value" id="scoreOverall">85</div>
-            <div class="stat-label">综合评分</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" id="scoreSpeed">0.3s</div>
-            <div class="stat-label">平均响应</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">24/7</div>
-            <div class="stat-label">工作模式</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="radar-chart-container fade-in fade-in-delay-1" id="radarChart">
-        <canvas id="radarCanvas" width="560" height="560"></canvas>
-      </div>
-
-      <div class="skill-tags fade-in fade-in-delay-2" id="skillTags">
-        <span class="skill-tag">📝 文案撰写</span>
-        <span class="skill-tag">🎨 视觉设计</span>
-        <span class="skill-tag">💻 代码编程</span>
-        <span class="skill-tag">📊 数据分析</span>
-        <span class="skill-tag">🌐 语言翻译</span>
-        <span class="skill-tag">🎯 逻辑推理</span>
-      </div>
-
-      <div class="result-score-card fade-in fade-in-delay-3">
-        <p style="color:var(--text-secondary);font-size:0.875rem">入职结论</p>
-        <h2 class="final-slogan">
-          下一个工位，<span class="highlight-orange">不坐人</span>
-        </h2>
-        <p style="color:var(--text-tertiary);font-size:0.8125rem">
-          千问大模型——AI时代的操作系统<br>
-          你的团队，可以多一个AI同事了
-        </p>
-      </div>
-
-      <div class="task-actions fade-in fade-in-delay-4" style="width:100%">
-        <button class="btn btn-secondary" onclick="restartTest()">
-          🔄 重新测试
-        </button>
-        <button class="btn btn-primary" onclick="shareResult()">
-          📤 分享报告
-        </button>
-      </div>
+    <div class="score-row anim-fade-up d-1">
+      <div class="score-item"><div class="score-val" id="so">85</div><div class="score-lbl">综合评分</div></div>
+      <div class="score-item"><div class="score-val" id="ss">0.3s</div><div class="score-lbl">平均响应</div></div>
+      <div class="score-item"><div class="score-val">24/7</div><div class="score-lbl">工作模式</div></div>
     </div>
-
-    <div class="bottom-fixed">
-      <p style="font-size:0.875rem;text-align:center">
-        <span style="background:var(--brand-gradient-soft);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">
-          下一个工位，不坐人
-        </span>
-        <span style="color:var(--text-tertiary);margin-left:8px">— 阿里云千问大模型</span>
-      </p>
+    <div class="radar-wrap anim-scale-in d-2">
+      <canvas id="rc"></canvas>
+    </div>
+    <div class="skill-row anim-fade-up d-3" id="skills"></div>
+    <div class="verdict-card anim-fade-up d-4">
+      <p style="color:var(--t-3);font-size:0.75rem;letter-spacing:0.05em;text-transform:uppercase">入职结论</p>
+      <h2 class="verdict-title">下一个工位，<span class="text-gradient">不坐人</span></h2>
+      <p style="color:var(--t-2);font-size:0.875rem">千问大模型——AI时代的操作系统<br>你的团队，可以多一个AI同事了</p>
+    </div>
+    <div class="task-actions-p2 anim-fade-up d-5" style="width:100%">
+      <button class="btn btn-glass" onclick="start()" style="flex:1">🔄 重新测试</button>
+      <button class="btn btn-primary" onclick="share()" style="flex:1">📤 分享报告</button>
     </div>
   </div>
+  <div class="bottom-bar">
+    <span class="slogan-tag">下一个工位，不坐人</span>
+    <span style="color:var(--t-3);margin-left:8px;font-size:0.75rem">— 阿里云千问大模型</span>
+  </div>
+</div>
 
-  <script src="../shared/utils.js"></script>
-  <script>
-    /* === 任务定义 === */
-    const tasks = [
-      {
-        id: 'report',
-        number: '任务一',
-        title: '📝 写周报',
-        brief: '本周团队完成了用户系统重构，上线了新版Dashboard，修复了12个bug。请千问写一份简洁有力的周报。',
-        prompt: '你是一个互联网公司的团队成员。本周完成了：1)用户系统重构 2)新版Dashboard上线 3)修复12个bug。请写一份简洁专业的周报，包含本周完成、下周计划、风险提示三个部分。',
-        skillAffected: '文案撰写'
-      },
-      {
-        id: 'ppt',
-        number: '任务二',
-        title: '📊 做PPT大纲',
-        brief: '要给CEO汇报Q3增长策略，只有30分钟准备时间。请千问快速搞定一份逻辑清晰的大纲。',
-        prompt: '请为"Q3用户增长策略"写一份面向CEO的PPT大纲。包含：市场现状分析、增长机会点、核心策略、执行计划、预期指标、资源需求。每页给出标题和3个要点。共8-10页。',
-        skillAffected: '逻辑推理'
-      },
-      {
-        id: 'debug',
-        number: '任务三',
-        title: '💻 帮忙Debug',
-        brief: '线上出现了一个棘手的bug——用户在支付环节偶尔会重复扣款。请千问分析可能的原因。',
-        prompt: '一个电商系统中，偶尔出现用户支付重复扣款的问题。技术栈：Node.js + Redis + 支付宝API。请作为资深后端工程师，分析5个最可能的原因，并给出排查方案和修复建议。',
-        skillAffected: '代码编程'
-      },
-      {
-        id: 'poster',
-        number: '任务四',
-        title: '🎨 设计海报文案',
-        brief: '双11大促在即，需要一套海报的完整文案。时间紧迫，让千问来试试。',
-        prompt: '请为一个科技产品的双11大促设计3张海报的完整方案。每张包括：主标题(10字以内)、副标题(20字以内)、正文描述(50字以内)、CTA按钮文案。产品是"智能办公套件"，主打AI提效。要求风格现代、有冲击力。',
-        skillAffected: '视觉设计'
-      },
-      {
-        id: 'translate',
-        number: '任务五',
-        title: '🌐 翻译合同',
-        brief: '海外合作伙伴发来了一份英文合同，需要快速翻译成中文，关键条款不能有歧义。',
-        prompt: '请将以下英文合同条款翻译成中文，保持法律文件的严谨性： "The Licensee shall not, without the prior written consent of the Licensor, assign, transfer, charge, sub-license or deal in any other manner with this Agreement or any rights hereunder, nor purport to do any of the same." 同时标注出关键法律术语。',
-        skillAffected: '语言翻译'
-      },
-      {
-        id: 'data',
-        number: '任务六',
-        title: '📈 分析数据',
-        brief: '市场部发来了一份用户调研原始数据，需要从中提取insight来指导产品迭代。',
-        prompt: '以下是某SaaS产品的用户调研数据摘要：[NPS从32降至28，续费率下降5%，客服工单中"操作复杂"相关工单上升40%，新功能使用率仅12%]。请作为产品分析师，从中提炼3个关键洞察，并给出对应的产品改进建议。',
-        skillAffected: '数据分析'
-      }
-    ];
+<script src="../shared/utils.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const TASKS = [
+  {
+    id:'report', num:'任务一', title:'📝 写周报',
+    brief:'本周团队完成了用户系统重构，上线了新版Dashboard，修复了12个bug。请千问写一份简洁有力的周报。',
+    system:'你是一个互联网公司的资深项目经理。请根据用户提供的本周工作总结，写一份结构清晰、专业简洁的周报。',
+    prompt:'你是一个互联网公司的团队成员。本周完成了：1)用户系统重构（核心模块迁移，性能提升40%）2)新版Dashboard上线（覆盖全量用户）3)修复12个bug（支付、登录、消息模块）。请写一份简洁专业的周报，包含本周完成、下周计划、风险提示三个部分。'
+  },
+  {
+    id:'ppt', num:'任务二', title:'📊 做PPT大纲',
+    brief:'要给CEO汇报Q3增长策略，只有30分钟准备时间。请千问快速搞定一份逻辑清晰的大纲。',
+    system:'你是一个曾多次向CEO汇报的策略总监。请为用户提供一份逻辑严密、重点突出的PPT大纲。',
+    prompt:'请为"Q3用户增长策略"写一份面向CEO的PPT大纲。包含：H1回顾与现状、当前痛点、市场机会洞察、核心策略、执行路径、关键指标、资源需求、里程碑计划。每页标题+3个要点。共8-10页。简洁有力。'
+  },
+  {
+    id:'debug', num:'任务三', title:'💻 帮忙Debug',
+    brief:'线上出现了一个棘手的bug——用户在支付环节偶尔会重复扣款。请千问分析可能的原因。',
+    system:'你是一个10年经验的资深后端架构师，精通Node.js、Redis和支付宝支付系统。请提供专业的技术分析。',
+    prompt:'一个电商系统偶尔出现支付重复扣款问题。技术栈：Node.js + Redis + 支付宝API。请分析3个最可能的原因，每个给出详细分析和修复方案。要求专业、可落地。'
+  },
+  {
+    id:'poster', num:'任务四', title:'🎨 设计海报文案',
+    brief:'双11大促在即，需要一套海报的完整文案。时间紧迫，让千问来试试。',
+    system:'你是一个4A广告公司资深创意总监，擅长为科技产品创作有冲击力的广告文案。',
+    prompt:'请为一个"智能办公套件"产品的双11大促设计3张海报的完整文案方案。每张包含：主标题(10字以内)、副标题(20字以内)、正文(50字以内)、CTA按钮文案。主打AI提效卖点。要求：有冲击力，有记忆点，适合社交媒体传播。'
+  },
+  {
+    id:'translate', num:'任务五', title:'🌐 翻译合同',
+    brief:'海外合作伙伴发来了一份英文合同，需要快速翻译成中文，关键条款不能有歧义。',
+    system:'你是一个精通法律英语的专业合同翻译。翻译必须严谨、准确，保持法律文件的专业性。',
+    prompt:'请将以下英文合同条款翻译成中文，保持法律文件的严谨性，并标注关键法律术语：\n"The Licensee shall not, without the prior written consent of the Licensor, assign, transfer, charge, sub-license or deal in any other manner with this Agreement or any rights hereunder, nor purport to do any of the same."'
+  },
+  {
+    id:'data', num:'任务六', title:'📈 分析数据',
+    brief:'市场部发来了一份用户调研原始数据，需要从中提取insight来指导产品迭代。',
+    system:'你是一个SaaS产品资深数据分析师。请从用户调研数据中提炼关键洞察和可执行的建议。',
+    prompt:'以下是某SaaS产品的用户调研数据摘要：[NPS从32降至28，续费率下降5%，客服工单中"操作复杂"相关工单上升40%，新功能使用率仅12%]。请作为产品分析师，从中提炼3个关键洞察，并给出对应的产品改进建议。'
+  }
+];
 
-    /* === 状态 === */
-    const state = {
-      currentTaskIndex: 0,
-      scores: {},       // { taskId: score 0-100 }
-      completedTasks: 0
+const ST = { idx:0, scores:{}, done:0 };
+
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo({top:0,behavior:'smooth'})}
+
+function start(){ST.idx=0;ST.scores={};ST.done=0;renderTask();goScreen('task')}
+
+function renderTask(){
+  const t = TASKS[ST.idx];
+  $('ti').textContent = ST.idx+1;
+  $('tn').textContent = t.num;
+  $('tt').textContent = t.title;
+  $('tb').textContent = t.brief;
+  $('out').className = 'output-panel loading-state';
+  $('out').innerHTML = '<div class="dots-p2"><span></span><span></span><span></span></div><span style="color:var(--t-3);font-size:0.875rem">千问正在处理...</span>';
+  $('btnNext').disabled = true;
+  $('btnSkip').style.display = '';
+  if (ST.idx===5) $('btnNext').textContent = '📋 查看报告 →';
+  else $('btnNext').textContent = '下一项 →';
+
+  const dots = $('tpb').querySelectorAll('.tpb-dot');
+  dots.forEach((d,i)=>{d.classList.remove('done','cur');if(i<ST.idx)d.classList.add('done');if(i===ST.idx)d.classList.add('cur')});
+
+  runTask(t);
+}
+
+async function runTask(t){
+  const out = $('out');
+
+  // 真实API
+  const aiResp = await callQianwenAPI(t.prompt, {
+    systemPrompt: t.system,
+    temperature: 0.7,
+    maxTokens: 800
+  });
+
+  await delay(400);
+  out.className = 'output-panel';
+  if (aiResp) {
+    out.innerHTML = `<div class="output-content">${escapeH(aiResp)}</div>`;
+  } else {
+    // fallback 演示数据
+    const demos = {
+      report: '📋 本周工作周报\n\n【本周完成】\n• 用户系统重构——核心模块迁移完成，接口性能提升40%\n• 新版Dashboard上线——覆盖全量用户，加载速度<1.5s\n• Bug修复——累计关闭12个缺陷\n\n【下周计划】\n• 启动用户画像2.0项目\n• Dashboard增加自定义报表功能\n\n【风险提示】\n⚠️ 重构后的用户系统需进行压测验证',
+      ppt: '📊 Q3用户增长策略\n\n[P1] 封面\n[P2] H1回顾：增速8.3%，低于行业均值12%\n[P3] 痛点：获客成本↑23%，留存↓5%\n[P4] 机会：下沉市场渗透率仅3%\n[P5] 策略：内容驱动+社交裂变\n[P6] 执行：KOL矩阵→社区沉淀→裂变\n[P7] 指标：DAU+30%, CAC-20%, LTV+40%\n[P8] 资源：500万预算，团队扩编6人\n[P9] 里程碑：M1验证→M2放量→M3稳定\n[P10] 总结',
+      debug: '🔍 重复扣款根因分析\n\n1.【Redis幂等锁失效 - 概率最高】\n锁过期时间短于支付回调时间，同一请求被处理两次\n→ 修复：锁过期30s→120s + 释放前二次校验\n\n2.【支付宝回调重试未去重】\n异步通知可能重发，notify_id未做唯一性校验\n→ 修复：增加notify_id去重表+状态机幂等控制\n\n3.【前端重复提交】\n支付按钮未防抖，用户快速双击\n→ 修复：按钮级loading + 请求ID去重机制',
+      poster: '🎨 双11智能办公套件\n\n【海报一·效率觉醒】\n主标题：不开会，能做更多\n副标题：把重复劳动交给AI\nCTA：立即解锁 →\n\n【海报二·拒绝加班】\n主标题：下班！现在就下\n副标题：你和高效率之间，只差AI同事\nCTA：免费试用 →\n\n【海报三·一人成军】\n主标题：一个人，就是团队\n副标题：当AI成为标配的全栈能力\nCTA：体验AI工作台 →',
+      translate: '⚖️ 合同条款翻译\n\n【译文】\n未经许可方事先书面同意，被许可方不得转让、转移、设立担保、分许可或以任何其他方式处置本协议或本协议项下的任何权利，亦不得声称已实施前述任何行为。\n\n【关键术语】\n• assign — 转让（权利主体变更）\n• transfer — 转移（权利客体移转）\n• charge — 设立担保/抵押\n• sub-license — 分许可\n• purport to do — 声称实施\n• prior written consent — 事先书面同意',
+      data: '📈 用户洞察\n\n【洞察一】产品体验拖累增长\nNPS↓12.5%，操作复杂工单↑40%，高度相关。产品已超用户容忍阈值\n→ 启动30天简化冲刺，聚焦Top 5高频流程\n\n【洞察二】新功能未解决真实需求\n使用率仅12%，但无"缺功能"投诉。团队在造轮子\n→ 暂停新功能，先做用户需求验证\n\n【洞察三】续费风险积累\n续费率↓5%，结合NPS下降，用户在用脚投票\n→ 建立用户健康度模型，提前介入高风险客户'
     };
+    out.innerHTML = `<div class="output-content">${escapeH(demos[t.id] || '任务完成。')}</div>`;
+  }
 
-    /* === 模拟千问响应（比赛时替换为真实API） === */
-    const demoResponses = {
-      report: `📋 **本周工作周报**
+  ST.scores[t.id] = 75 + Math.floor(Math.random()*20);
+  ST.done++;
+  $('btnNext').disabled = false;
+}
 
-**一、本周完成**
-• 用户系统重构 —— 完成核心模块迁移，接口性能提升40%
-• 新版Dashboard上线 —— 覆盖全量用户，加载速度优化至<1.5s
-• Bug修复 —— 累计关闭12个缺陷，涉及支付、登录、消息模块
+function next(){
+  if (ST.idx < 5) { ST.idx++; renderTask(); }
+  else showResult();
+}
 
-**二、下周计划**
-• 启动用户画像2.0项目，完成数据方案评审
-• Dashboard增加自定义报表功能
-• 配合安全团队完成渗透测试修复
+function skip(){ ST.scores[TASKS[ST.idx].id]=50; ST.done++; next(); }
 
-**三、风险提示**
-⚠️ 重构后的用户系统需进行压测验证，建议下周三前完成`,
-      ppt: `📊 **Q3用户增长策略 · CEO汇报大纲**
+function showResult(){
+  goScreen('result');
+  const vals = Object.values(ST.scores);
+  const avg = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+  $('so').textContent = avg;
+  $('ss').textContent = (0.2 + Math.random()*0.4).toFixed(1)+'s';
 
-[P1] 封面：Q3用户增长策略
-[P2] H1回顾：用户增速8.3%，低于行业均值12%
-[P3] 当前痛点：获客成本↑23%，新用户留存↓5%
-[P4] 机会洞察：下沉市场渗透率仅3%，竞品已布局
-[P5] 核心策略：内容驱动增长 + 社交裂变双引擎
-[P6] 执行路径：KOL矩阵 → 社区沉淀 → 口碑裂变
-[P7] 关键指标：DAU +30%, CAC -20%, LTV +40%
-[P8] 资源需求：预算500万，团队扩编6人
-[P9] 里程碑：M1验证期 → M2放量期 → M3稳定期
-[P10] 总结：用内容撬动增长飞轮`,
-      debug: `🔍 **重复扣款问题 · 根因分析**
+  $('skills').innerHTML = TASKS.map(t=>{
+    const s = ST.scores[t.id]||50;
+    return `<span class="skill-badge">${t.title} · ${s}分</span>`;
+  }).join('');
 
-**最可能的5个原因：**
+  setTimeout(drawRadar, 400);
+}
 
-1. **Redis幂等锁失效**（概率最高）
-   原因：锁的过期时间短于支付回调响应时间，导致同一请求被处理两次
-   修复：锁过期时间从30s延长至120s + 释放前二次校验
+function drawRadar(){
+  const canvas = $('rc');
+  const wrap = canvas.parentElement;
+  const size = wrap.offsetWidth * 2;
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const cx=size/2, cy=size/2, r=size*0.32, sides=6, step=Math.PI*2/sides;
 
-2. **支付宝回调重试未去重**
-   原因：支付宝异步通知可能重发，服务端未校验通知ID唯一性
-   修复：增加notify_id去重表，状态机做幂等控制
-
-3. **数据库事务隔离级别问题**
-   原因：RR隔离级别下，并发update可能读到旧版本数据
-   修复：将扣款操作改为 SELECT ... FOR UPDATE 行锁
-
-4. **前端重复提交**
-   原因：支付按钮未防抖，用户快速双击
-   修复：按钮级loading + 请求ID去重
-
-5. **定时任务与实时回调冲突**
-   原因：定时补单任务与支付回调同时执行
-   修复：增加分布式锁（Redisson），确保同一订单只有一个执行路径`,
-      poster: `🎨 **双11智能办公套件 · 海报文案**
-
-【海报一】「效率觉醒」
-主标题：不开会，能做更多
-副标题：把重复劳动交给AI，你只管创造性工作
-正文：AI智能排期、自动会议纪要、智能文档生成。双11期间企业版买一年送三月。
-CTA：立即解锁 →
-
-【海报二】「拒绝加班」
-主标题：下班！现在就下班
-副标题：你和高效之间，只差一个AI同事的距离
-正文：平均每人每天节省2.3小时。那些你不想做的琐事，千问都能搞定。
-CTA：免费试用14天 →
-
-【海报三】「碾压式提效」
-主标题：一人成军
-副标题：当AI成为标配，一个人的团队可以多强？
-正文：写作、设计、数据分析、代码——全栈能力，一个工作台。这才是2026年的工作方式。
-CTA：体验AI工作台 →`,
-      translate: `⚖️ **合同条款翻译**
-
-【原文】
-The Licensee shall not, without the prior written consent of the Licensor, assign, transfer, charge, sub-license or deal in any other manner with this Agreement or any rights hereunder, nor purport to do any of the same.
-
-【译文】
-未经许可方事先书面同意，被许可方不得转让、转移、设立担保、分许可或以任何其他方式处置本协议或本协议项下的任何权利，亦不得声称已实施前述任何行为。
-
-【关键术语标注】
-• assign — 转让（权利主体变更）
-• transfer — 转移（权利客体移转）
-• charge — 设立担保/抵押（设立权利负担）
-• sub-license — 分许可/再许可
-• purport to do — 声称实施（即使实质上未完成，仅声称也算违约）
-• prior written consent — 事先书面同意（形式+时间双重限定）`,
-      data: `📈 **用户调研数据 · 关键洞察**
-
-**【洞察一】产品体验正在拖累增长**
-NPS从32降至28（↓12.5%），"操作复杂"工单↑40%，这两个指标高度相关。说明产品复杂度已经超过了用户的容忍阈值。
-→ 建议：启动"30天简化冲刺"，聚焦Top 5高频操作流程的减步
-
-**【洞察二】新功能未解决真实需求**
-新功能使用率仅12%，但同期投诉中并未出现"缺少功能"的反馈。即团队在"造轮子"，而不是在解决用户真正在意的问题。
-→ 建议：下个迭代暂停新功能开发，先做用户需求验证访谈
-
-**【洞察三】续费风险在积累**
-续费率↓5%看似不大，但结合NPS下降和操作复杂度问题，说明用户在用脚投票。如果Q3不干预，Q4续费率可能加速下滑。
-→ 建议：建立用户健康度评分模型，对高风险客户提前介入`
-    };
-
-    /* === 屏幕切换 === */
-    function switchScreen(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  ctx.clearRect(0,0,size,size);
+  // grid
+  for(let l=1;l<=5;l++){
+    ctx.beginPath();
+    for(let i=0;i<sides;i++){
+      const a=step*i-Math.PI/2;const rr=r/5*l;
+      const x=cx+rr*Math.cos(a),y=cy+rr*Math.sin(a);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
     }
+    ctx.closePath();ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.stroke();
+  }
+  // axes
+  for(let i=0;i<sides;i++){
+    const a=step*i-Math.PI/2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.stroke();
+  }
+  // data
+  ctx.beginPath();
+  for(let i=0;i<sides;i++){
+    const score=(ST.scores[TASKS[i].id]||50)/100;
+    const a=step*i-Math.PI/2;const rr=r*score;
+    const x=cx+rr*Math.cos(a),y=cy+rr*Math.sin(a);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(255,106,0,0.1)';ctx.fill();
+  ctx.strokeStyle='#FF6A00';ctx.lineWidth=2;ctx.stroke();
+  // dots
+  for(let i=0;i<sides;i++){
+    const score=(ST.scores[TASKS[i].id]||50)/100;
+    const a=step*i-Math.PI/2;const rr=r*score;
+    ctx.beginPath();ctx.arc(cx+rr*Math.cos(a),cy+rr*Math.sin(a),5,0,Math.PI*2);
+    ctx.fillStyle='#FF6A00';ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  // labels
+  ctx.fillStyle='#FFFFFF';ctx.font='bold 20px -apple-system,sans-serif';ctx.textAlign='center';
+  const labels=['写周报','PPT','Debug','海报','翻译','数据'];
+  for(let i=0;i<sides;i++){
+    const a=step*i-Math.PI/2;
+    ctx.fillText(labels[i],cx+(r+40)*Math.cos(a),cy+(r+40)*Math.sin(a)+7);
+  }
+}
 
-    /* === 开始测试 === */
-    function startOnboarding() {
-      state.currentTaskIndex = 0;
-      state.scores = {};
-      state.completedTasks = 0;
-      renderTask();
-      switchScreen('taskScreen');
-    }
+async function share(){
+  await shareContent('千问入职测试报告','千问大模型AI同事入职测试 🤖\n下一个工位，不坐人\n——阿里云千问大模型 × 第18届大广赛',window.location.href);
+}
 
-    /* === 渲染任务 === */
-    function renderTask() {
-      const task = tasks[state.currentTaskIndex];
-      document.getElementById('taskIndexDisplay').textContent = state.currentTaskIndex + 1;
-      document.getElementById('taskNumberLabel').textContent = task.number;
-      document.getElementById('taskTitle').textContent = task.title;
-      document.getElementById('taskBrief').textContent = task.brief;
+function escapeH(s){
+  const d=document.createElement('div');d.textContent=s;return d.innerHTML;
+}
 
-      const outputEl = document.getElementById('taskOutput');
-      outputEl.className = 'task-output loading';
-      outputEl.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div><p style="margin-top:8px;color:var(--text-tertiary)">千问正在处理...</p>';
-
-      document.getElementById('btnNext').disabled = true;
-      document.getElementById('btnSkip').style.display = '';
-
-      // 更新进度条
-      const dots = document.querySelectorAll('#taskProgress .task-progress-dot');
-      dots.forEach((dot, i) => {
-        dot.classList.remove('done', 'current');
-        if (i < state.currentTaskIndex) dot.classList.add('done');
-        if (i === state.currentTaskIndex) dot.classList.add('current');
-      });
-
-      // 模拟AI响应
-      simulateAIResponse(task);
-    }
-
-    /* === 模拟千问响应 === */
-    async function simulateAIResponse(task) {
-      const outputEl = document.getElementById('taskOutput');
-      const response = demoResponses[task.id] || '任务完成。';
-
-      // 尝试真实API
-      const aiResp = await callQianwenAPI(task.prompt, { temperature: 0.7 });
-
-      await delay(600 + Math.random() * 800);
-
-      outputEl.className = 'task-output';
-      outputEl.textContent = aiResp || response;
-
-      // 随机打分
-      state.scores[task.id] = Math.floor(Math.random() * 20) + 75; // 75-95
-      state.completedTasks++;
-
-      document.getElementById('btnNext').disabled = false;
-
-      // 最后一项改按钮文案
-      if (state.currentTaskIndex === tasks.length - 1) {
-        document.getElementById('btnNext').textContent = '📋 查看入职报告 →';
-      }
-    }
-
-    /* === 下一项 === */
-    function nextTask() {
-      if (state.currentTaskIndex < tasks.length - 1) {
-        state.currentTaskIndex++;
-        renderTask();
-      } else {
-        showResult();
-      }
-    }
-
-    /* === 跳过 === */
-    function skipTask() {
-      state.scores[tasks[state.currentTaskIndex].id] = 50;
-      state.completedTasks++;
-      nextTask();
-    }
-
-    /* === 显示结果 === */
-    function showResult() {
-      switchScreen('resultScreen');
-
-      // 计算综合评分
-      const scoreValues = Object.values(state.scores);
-      const avgScore = Math.round(scoreValues.reduce((a, b) => a + b, 0) / scoreValues.length);
-      document.getElementById('scoreOverall').textContent = avgScore;
-
-      // 绘制雷达图
-      setTimeout(() => drawRadarChart(), 500);
-
-      // 技能标签
-      const tagsContainer = document.getElementById('skillTags');
-      tagsContainer.innerHTML = tasks.map(t => {
-        const score = state.scores[t.id] || 50;
-        return `<span class="skill-tag">${t.title} · ${score}分</span>`;
-      }).join('');
-    }
-
-    /* === 雷达图 === */
-    function drawRadarChart() {
-      const canvas = document.getElementById('radarCanvas');
-      const ctx = canvas.getContext('2d');
-      const container = document.getElementById('radarChart');
-      const size = container.offsetWidth * 2; // 2x for retina
-      canvas.width = size;
-      canvas.height = size;
-
-      const cx = size / 2;
-      const cy = size / 2;
-      const radius = size * 0.35;
-      const levels = 5;
-      const sides = tasks.length;
-      const angleStep = (Math.PI * 2) / sides;
-
-      ctx.clearRect(0, 0, size, size);
-
-      // 绘制网格
-      for (let level = 1; level <= levels; level++) {
-        ctx.beginPath();
-        for (let i = 0; i < sides; i++) {
-          const angle = angleStep * i - Math.PI / 2;
-          const r = (radius / levels) * level;
-          const x = cx + r * Math.cos(angle);
-          const y = cy + r * Math.sin(angle);
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-        ctx.stroke();
-      }
-
-      // 绘制轴线
-      for (let i = 0; i < sides; i++) {
-        const angle = angleStep * i - Math.PI / 2;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + radius * Math.cos(angle), cy + radius * Math.sin(angle));
-        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-        ctx.stroke();
-      }
-
-      // 绘制数据
-      ctx.beginPath();
-      for (let i = 0; i < sides; i++) {
-        const score = (state.scores[tasks[i].id] || 50) / 100;
-        const angle = angleStep * i - Math.PI / 2;
-        const r = radius * score;
-        const x = cx + r * Math.cos(angle);
-        const y = cy + r * Math.sin(angle);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(255, 106, 0, 0.2)';
-      ctx.fill();
-      ctx.strokeStyle = '#FF6A00';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-
-      // 绘制数据点
-      for (let i = 0; i < sides; i++) {
-        const score = (state.scores[tasks[i].id] || 50) / 100;
-        const angle = angleStep * i - Math.PI / 2;
-        const r = radius * score;
-        const x = cx + r * Math.cos(angle);
-        const y = cy + r * Math.sin(angle);
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = '#FF6A00';
-        ctx.fill();
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-
-      // 标签
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 24px -apple-system, sans-serif';
-      ctx.textAlign = 'center';
-      for (let i = 0; i < sides; i++) {
-        const angle = angleStep * i - Math.PI / 2;
-        const labelR = radius + 45;
-        const x = cx + labelR * Math.cos(angle);
-        const y = cy + labelR * Math.sin(angle) + 8;
-        const labels = ['写周报', 'PPT', 'Debug', '海报', '翻译', '数据'];
-        ctx.fillText(labels[i], x, y);
-      }
-    }
-
-    /* === 重新测试 === */
-    function restartTest() {
-      startOnboarding();
-    }
-
-    /* === 分享 === */
-    async function shareResult() {
-      const avgScore = Math.round(Object.values(state.scores).reduce((a, b) => a + b, 0) / Object.values(state.scores).length);
-      const shareText = `千问大模型入职测试报告 📋\n综合评分：${avgScore}分\n结论：下一个工位，不坐人 🤖\n—— 阿里云千问大模型 × 第18届大广赛`;
-      await shareContent(
-        '千问大模型入职测试报告',
-        shareText,
-        window.location.href
-      );
-    }
-
-    /* === 初始化 === */
-    function init() {
-      const particlesContainer = document.getElementById('particles');
-      particlesContainer.appendChild(createParticles(25));
-    }
-
-    init();
-  </script>
+goScreen('splash');
+</script>
 </body>
 </html>

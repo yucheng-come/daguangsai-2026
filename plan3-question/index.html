@@ -1,686 +1,338 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>一切从问开始 - 千问大模型</title>
-  <link rel="stylesheet" href="../shared/styles.css">
-  <style>
-    /* === 页面特有样式 === */
-    .screen {
-      display: none;
-      flex-direction: column;
-      min-height: 100vh;
-      width: 100%;
-    }
-    .screen.active { display: flex; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>一切从问开始 - 千问大模型</title>
+<link rel="stylesheet" href="../shared/styles.css">
+<style>
+  .screen{display:none;flex-direction:column;min-height:100vh;min-height:100dvh}
+  .screen.on{display:flex}
 
-    /* === 开场屏 === */
-    .intro-screen-p3 {
-      text-align: center;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-xl);
-      padding-top: 10vh;
-    }
+  /* === 开场 === */
+  .splash-p3{justify-content:center;align-items:center;text-align:center;gap:36px;padding-top:6vh}
+  .qm{font-size:120px;font-weight:900;line-height:1;
+    background:var(--grad-brand);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    animation:float 5s ease-in-out infinite;filter:drop-shadow(0 0 80px rgba(255,106,0,0.2))}
+  .quote-block-p3{
+    background:rgba(255,255,255,0.02);border-left:2px solid var(--c-orange);
+    padding:16px 20px;border-radius:0 var(--r-md) var(--r-md) 0;text-align:left;max-width:340px;
+  }
+  .quote-block-p3 .q{font-size:0.9375rem;color:var(--t-2);font-style:italic;line-height:1.8}
+  .quote-block-p3 .a{font-size:0.75rem;color:var(--t-3);margin-top:6px}
+  .hint-p3{font-size:0.8125rem;color:var(--t-muted)}
 
-    .big-question-mark {
-      font-size: 5rem;
-      font-weight: 900;
-      background: var(--brand-gradient-soft);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: float 4s ease-in-out infinite;
-      line-height: 1;
-    }
+  /* === 输入 === */
+  .input-p3{gap:28px;align-items:center;padding-top:24px}
+  .ta-wrap{width:100%;position:relative}
+  .ta-wrap textarea{
+    width:100%;min-height:110px;background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.08);border-radius:var(--r-xl);
+    padding:24px;color:var(--t-1);font-size:1.0625rem;font-family:inherit;
+    resize:none;outline:none;transition:all 0.3s var(--ease-out-expo);line-height:1.7;
+  }
+  .ta-wrap textarea:focus{
+    border-color:var(--c-orange);box-shadow:0 0 0 4px rgba(255,106,0,0.05);
+    background:rgba(255,255,255,0.05);
+  }
+  .ta-wrap textarea::placeholder{color:var(--t-muted)}
+  .ta-counter{text-align:right;font-size:0.7rem;color:var(--t-3);margin-top:4px;padding-right:4px}
+  .eg-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:400px}
+  .eg-chip{
+    padding:8px 16px;border-radius:var(--r-full);font-size:0.8125rem;cursor:pointer;
+    border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);
+    color:var(--t-2);transition:all 0.2s var(--ease-out-expo);
+  }
+  .eg-chip:hover{border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.04)}
 
-    .intro-title-p3 {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.3;
-    }
+  /* === 进化 === */
+  .evolve-p3{gap:24px;align-items:center;padding-top:20px}
+  .ev-stage{
+    width:100%;text-align:center;padding:28px 24px;border-radius:var(--r-xl);
+    transition:all 0.6s var(--ease-out-expo);
+  }
+  .ev-stage.orig{
+    background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+  }
+  .ev-stage.mid{
+    background:rgba(255,106,0,0.03);border:1px solid rgba(255,106,0,0.1);
+  }
+  .ev-stage.final{
+    background:rgba(0,104,255,0.03);border:1px solid rgba(0,104,255,0.1);
+  }
+  .ev-label{font-size:0.6875rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--t-3);margin-bottom:8px}
+  .ev-q{font-size:1.125rem;font-weight:600;line-height:1.6;color:var(--t-1)}
+  .ev-arrow{font-size:1.5rem;opacity:0.3;text-align:center}
 
-    .quote-block {
-      background: rgba(255, 255, 255, 0.02);
-      border-left: 3px solid var(--brand-orange);
-      padding: var(--space-md) var(--space-lg);
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
-      text-align: left;
-      max-width: 360px;
-    }
+  /* === 问题树 === */
+  .tree-p3{gap:24px;align-items:center;padding-bottom:120px}
+  .tree-vis{width:100%;position:relative}
+  .t-node{
+    padding:18px 20px;border-radius:var(--r-lg);margin-bottom:12px;
+    animation:fadeUp 0.6s var(--ease-out-expo) both;transition:all 0.3s var(--ease-out-expo);
+  }
+  .t-node:hover{transform:translateX(4px)}
+  .t-root{
+    background:var(--grad-brand);color:white;font-weight:700;text-align:center;
+    font-size:1.0625rem;box-shadow:0 4px 24px rgba(255,106,0,0.2);
+  }
+  .t-branch{
+    background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+    margin-left:28px;font-size:0.9375rem;color:var(--t-2);
+  }
+  .t-branch::before{content:'';position:absolute;left:-16px;top:50%;width:16px;height:1.5px;background:rgba(255,255,255,0.1)}
+  .t-leaf{
+    background:rgba(0,104,255,0.04);border:1px solid rgba(0,104,255,0.12);
+    margin-left:56px;font-size:0.875rem;color:var(--t-2);
+  }
+  .t-leaf::before{content:'';position:absolute;left:-16px;top:50%;width:16px;height:1.5px;background:rgba(0,104,255,0.15)}
+  .t-badge{
+    display:inline-block;padding:3px 10px;border-radius:var(--r-full);
+    font-size:0.65rem;font-weight:600;margin-right:10px;letter-spacing:0.03em;
+  }
+  .t-root .t-badge{background:rgba(255,255,255,0.2);color:white}
+  .t-branch .t-badge{background:rgba(255,106,0,0.12);color:var(--c-orange-bright)}
+  .t-leaf .t-badge{background:rgba(0,104,255,0.12);color:var(--c-blue-bright)}
 
-    .quote-text {
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      font-style: italic;
-      line-height: 1.7;
-    }
+  .insight-block{text-align:center;padding:28px 20px;width:100%}
+  .insight-block p{font-size:1.0625rem;line-height:2;color:var(--t-2)}
+  .final-slogan{font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;text-align:center;margin-top:8px}
 
-    .quote-author {
-      font-size: 0.75rem;
-      color: var(--text-tertiary);
-      margin-top: 4px;
-    }
+  .dots-p3{display:flex;gap:5px;justify-content:center}
+  .dots-p3 span{width:6px;height:6px;border-radius:50%;background:var(--c-purple);animation:dotBounce 1.4s ease-in-out infinite both}
+  .dots-p3 span:nth-child(1){animation-delay:-0.32s}
+  .dots-p3 span:nth-child(2){animation-delay:-0.16s}
+  @keyframes dotBounce{0%,80%,100%{transform:scale(0.3);opacity:0.3}40%{transform:scale(1);opacity:1}}
 
-    /* === 输入屏 === */
-    .input-screen {
-      align-items: center;
-      padding: var(--space-xl) var(--space-lg);
-      gap: var(--space-xl);
-    }
-
-    .question-input-wrapper {
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .question-input {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: var(--space-lg);
-      color: var(--text-primary);
-      font-size: 1.0625rem;
-      font-family: inherit;
-      resize: none;
-      outline: none;
-      transition: all var(--duration-normal) var(--ease-out);
-      line-height: 1.6;
-      min-height: 100px;
-    }
-
-    .question-input:focus {
-      border-color: var(--brand-orange);
-      box-shadow: 0 0 0 4px rgba(255, 106, 0, 0.08);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .question-input::placeholder {
-      color: var(--text-tertiary);
-      font-size: 0.9375rem;
-    }
-
-    .example-questions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-sm);
-      justify-content: center;
-      max-width: 400px;
-    }
-
-    .example-chip {
-      padding: 8px 16px;
-      border-radius: var(--radius-full);
-      font-size: 0.8125rem;
-      cursor: pointer;
-      border: 1px solid var(--border-subtle);
-      background: rgba(255, 255, 255, 0.02);
-      color: var(--text-secondary);
-      transition: all var(--duration-fast) var(--ease-out);
-      white-space: nowrap;
-    }
-
-    .example-chip:hover {
-      border-color: rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    /* === 进化动画屏 === */
-    .evolution-screen {
-      align-items: center;
-      padding: var(--space-xl) var(--space-lg);
-      gap: var(--space-lg);
-    }
-
-    .evolution-stage {
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-      padding: var(--space-lg);
-      border-radius: var(--radius-lg);
-      transition: all var(--duration-slow) var(--ease-out);
-    }
-
-    .evolution-stage.original {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
-    }
-
-    .evolution-stage.evolved {
-      background: rgba(255, 106, 0, 0.05);
-      border: 1px solid rgba(255, 106, 0, 0.2);
-    }
-
-    .evolution-stage.final {
-      background: rgba(0, 104, 255, 0.05);
-      border: 1px solid rgba(0, 104, 255, 0.2);
-    }
-
-    .stage-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: var(--space-sm);
-      color: var(--text-tertiary);
-    }
-
-    .stage-question {
-      font-size: 1.125rem;
-      font-weight: 600;
-      line-height: 1.5;
-      color: var(--text-primary);
-    }
-
-    .evolution-arrow {
-      font-size: 1.5rem;
-      opacity: 0.4;
-      animation: float 2s ease-in-out infinite;
-    }
-
-    .evolution-thinking {
-      font-size: 0.875rem;
-      color: var(--brand-orange-light);
-      font-style: italic;
-      padding: var(--space-md);
-      text-align: center;
-    }
-
-    /* === 问题树结果屏 === */
-    .tree-screen {
-      align-items: center;
-      padding: var(--space-lg);
-      gap: var(--space-lg);
-    }
-
-    .tree-container {
-      width: 100%;
-      max-width: 400px;
-      position: relative;
-      padding: var(--space-xl) 0;
-    }
-
-    .tree-node {
-      position: relative;
-      padding: var(--space-md) var(--space-lg);
-      border-radius: var(--radius-md);
-      margin-bottom: var(--space-md);
-      animation: slideUp 0.5s var(--ease-spring) both;
-      cursor: pointer;
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-
-    .tree-node:hover {
-      transform: scale(1.02);
-    }
-
-    .tree-root {
-      background: var(--brand-gradient);
-      color: white;
-      font-weight: 700;
-      text-align: center;
-      font-size: 1.125rem;
-      box-shadow: var(--shadow-glow-orange);
-    }
-
-    .tree-branch {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      margin-left: var(--space-xl);
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-    }
-
-    .tree-branch::before {
-      content: '';
-      position: absolute;
-      left: -20px;
-      top: 50%;
-      width: 20px;
-      height: 2px;
-      background: var(--border-subtle);
-    }
-
-    .tree-leaf {
-      background: rgba(0, 104, 255, 0.05);
-      border: 1px solid rgba(0, 104, 255, 0.15);
-      margin-left: calc(var(--space-xl) * 2);
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-
-    .tree-leaf::before {
-      content: '';
-      position: absolute;
-      left: -20px;
-      top: 50%;
-      width: 20px;
-      height: 2px;
-      background: rgba(0, 104, 255, 0.2);
-    }
-
-    .tree-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: var(--radius-full);
-      font-size: 0.6875rem;
-      margin-right: 8px;
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .tree-branch .tree-badge {
-      background: rgba(255, 106, 0, 0.15);
-      color: var(--brand-orange-light);
-    }
-
-    .tree-leaf .tree-badge {
-      background: rgba(0, 104, 255, 0.15);
-      color: #60A5FA;
-    }
-
-    /* === 最终揭示 === */
-    .reveal-section {
-      text-align: center;
-      padding: var(--space-xl) 0;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .reveal-insight {
-      font-size: 1.125rem;
-      line-height: 1.8;
-      color: var(--text-secondary);
-      margin: var(--space-lg) 0;
-    }
-
-    .final-slogan-p3 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      margin: var(--space-lg) 0;
-    }
-  </style>
+  /* === 桌面端 === */
+  @media (min-width: 768px) {
+    .qm{font-size:150px}
+    .ev-q{font-size:1.25rem}
+    .t-root{font-size:1.1875rem}
+    .final-slogan{font-size:2rem}
+  }
+  @media (min-width: 1024px) {
+    .splash-p3{gap:44px}
+    .qm{font-size:180px}
+    .evolve-p3{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:20px}
+    .evolve-p3 .ev-stage{flex:1;min-width:250px;max-width:300px}
+    .evolve-p3 .ev-arrow{display:none}
+    .tree-vis{max-width:700px;margin:0 auto}
+    .t-branch{margin-left:60px}
+    .t-leaf{margin-left:120px}
+    .t-branch::before{left:-36px;width:36px}
+    .t-leaf::before{left:-36px;width:36px}
+    .final-slogan{font-size:2.5rem}
+    .insight-block p{font-size:1.1875rem}
+  }
+  @media (min-width: 1440px) {
+    .qm{font-size:200px}
+    .tree-vis{max-width:800px}
+    .final-slogan{font-size:3rem}
+  }
+</style>
 </head>
 <body>
-  <div class="glow-orb glow-orb-orange"></div>
-  <div class="glow-orb glow-orb-blue"></div>
-  <div id="particles"></div>
+<div class="bg-grid"></div>
+<div class="glow-orb glow-orb-o"></div>
+<div class="glow-orb glow-orb-b"></div>
+<div class="glow-orb glow-orb-p"></div>
 
-  <!-- ====== 开场屏 ====== -->
-  <div class="page-container screen active" id="introScreen">
-    <div class="brand-header fade-in">
-      <div class="logo-dot"></div>
-      <span class="brand-name">阿里云 × 千问大模型</span>
+<!-- ====== 开场 ====== -->
+<div class="page-wrap screen on" id="splash">
+  <div class="nav-bar anim-fade-up">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">阿里云 × 千问</span></div>
+  </div>
+  <div class="splash-p3">
+    <div class="qm anim-scale-in">?</div>
+    <h1 class="anim-fade-up d-1" style="font-size:2.25rem;font-weight:900;letter-spacing:-0.04em;text-align:center">
+      一切<span class="text-gradient">从问</span>开始
+    </h1>
+    <p class="anim-fade-up d-2" style="color:var(--t-2);max-width:300px;text-align:center">
+      人类每一次进步，都始于一个问题。<br>
+      牛顿、图灵、爱因斯坦——<br>
+      他们不是给出答案的人，<br>而是问对问题的人。
+    </p>
+    <div class="quote-block-p3 anim-fade-up d-3">
+      <p class="q">"如果我有一个小时来拯救世界，我会花55分钟定义问题，再用5分钟解决它。"</p>
+      <p class="a">—— 阿尔伯特·爱因斯坦</p>
     </div>
+    <p class="hint-p3 anim-fade-up d-4">千问大模型不给你答案<br>它帮你问出更好的问题</p>
+  </div>
+  <div class="bottom-bar anim-fade-up d-5">
+    <button class="btn btn-primary btn-lg btn-block" onclick="goInput()" style="max-width:360px;margin:0 auto">
+      💭 提出你的问题
+    </button>
+  </div>
+</div>
 
-    <div class="intro-screen-p3">
-      <div class="big-question-mark fade-in">?</div>
-      <h1 class="intro-title-p3 fade-in fade-in-delay-1">
-        一切<span style="background:var(--brand-gradient-soft);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">从问</span>开始
-      </h1>
-      <p class="fade-in fade-in-delay-2" style="color:var(--text-secondary);max-width:320px;line-height:1.8">
-        人类每一次进步，都始于一个问题。<br>
-        牛顿、图灵、爱因斯坦——<br>
-        他们不是给出答案的人，<br>而是问对问题的人。
-      </p>
-
-      <div class="quote-block fade-in fade-in-delay-3">
-        <p class="quote-text">"如果我有一个小时来拯救世界，我会花55分钟定义问题，再用5分钟解决它。"</p>
-        <p class="quote-author">—— 阿尔伯特·爱因斯坦</p>
-      </div>
-
-      <p class="fade-in fade-in-delay-4" style="font-size:0.8125rem;color:var(--text-tertiary)">
-        千问大模型不给你答案<br>
-        它帮你问出更好的问题
-      </p>
+<!-- ====== 输入 ====== -->
+<div class="page-wrap screen" id="input">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">一切从问开始</span></div>
+    <button class="btn btn-ghost" onclick="goSplash()">← 返回</button>
+  </div>
+  <div class="input-p3">
+    <h2 class="anim-fade-up" style="text-align:center;font-size:1.25rem">你现在在想什么？</h2>
+    <div class="ta-wrap anim-fade-up d-1">
+      <textarea id="qi" placeholder="例如：怎样才能找到好工作？" maxlength="100"></textarea>
+      <p class="ta-counter"><span id="cc">0</span>/100</p>
     </div>
+    <div class="eg-chips anim-fade-up d-2">
+      <button class="eg-chip" onclick="use('怎样才能找到好工作？')">找到好工作</button>
+      <button class="eg-chip" onclick="use('人生的意义是什么？')">人生的意义</button>
+      <button class="eg-chip" onclick="use('AI会取代人类吗？')">AI取代人类</button>
+      <button class="eg-chip" onclick="use('如何变得更自律？')">变得自律</button>
+      <button class="eg-chip" onclick="use('学什么技能最有前途？')">学什么技能</button>
+      <button class="eg-chip" onclick="use('什么是真正的成功？')">真正的成功</button>
+    </div>
+    <button class="btn btn-primary btn-lg btn-block anim-fade-up d-3" onclick="goEvolve()" style="max-width:360px">
+      ✨ 让千问帮你进化这个问题
+    </button>
+  </div>
+</div>
 
-    <div class="bottom-fixed fade-in fade-in-delay-5">
-      <button class="btn btn-primary btn-large" onclick="showInput()" style="width:100%;max-width:360px">
-        💭 提出你的问题
-      </button>
+<!-- ====== 进化中 ====== -->
+<div class="page-wrap screen" id="evolve">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">千问正在深度思考...</span></div>
+  </div>
+  <div class="evolve-p3" id="evContainer"></div>
+  <div class="bottom-bar">
+    <p style="font-size:0.75rem;color:var(--t-3)">千问大模型通过苏格拉底式提问，逐层深入问题本质</p>
+  </div>
+</div>
+
+<!-- ====== 问题树 ====== -->
+<div class="page-wrap screen" id="tree">
+  <div class="nav-bar">
+    <div class="nav-brand"><div class="nav-dot"></div><span class="nav-label">问题进化树</span></div>
+  </div>
+  <div class="tree-p3">
+    <p class="anim-fade-up" style="color:var(--t-3);text-align:center;font-size:0.875rem">
+      从原始提问到本质追问——这就是千问大模型的力量
+    </p>
+    <div class="tree-vis" id="treeVis"></div>
+    <div class="insight-block anim-fade-up d-2">
+      <div class="dots-p3"><span></span><span></span><span></span></div>
+      <p id="insight"></p>
+      <h2 class="final-slogan">
+        人类进步，<span class="text-gradient">从千问开始</span>
+      </h2>
+    </div>
+    <div style="display:flex;gap:10px;width:100%;max-width:400px" class="anim-fade-up d-3">
+      <button class="btn btn-glass" onclick="goInput()" style="flex:1">🔄 问一个新问题</button>
+      <button class="btn btn-primary" onclick="share()" style="flex:1">📤 分享进化树</button>
     </div>
   </div>
-
-  <!-- ====== 输入屏 ====== -->
-  <div class="page-container screen" id="inputScreen">
-    <div class="brand-header">
-      <div class="logo-dot"></div>
-      <span class="brand-name">一切从问开始</span>
-    </div>
-
-    <div class="input-screen">
-      <h2 class="fade-in" style="text-align:center">你现在在想什么？</h2>
-      <p class="fade-in fade-in-delay-1" style="text-align:center;color:var(--text-tertiary)">
-        任何问题都可以——人生、工作、技术、世界<br>
-        千问会帮你把它变成更好的问题
-      </p>
-
-      <div class="question-input-wrapper fade-in fade-in-delay-2">
-        <textarea
-          class="question-input"
-          id="questionInput"
-          placeholder="例如：怎样才能找到好工作？"
-          maxlength="100"
-          rows="3"
-        ></textarea>
-        <p style="text-align:right;font-size:0.75rem;color:var(--text-tertiary);margin-top:4px">
-          <span id="charCount">0</span>/100
-        </p>
-      </div>
-
-      <div class="example-questions fade-in fade-in-delay-3">
-        <button class="example-chip" onclick="useExample('怎样才能找到好工作？')">找到好工作</button>
-        <button class="example-chip" onclick="useExample('人生的意义是什么？')">人生的意义</button>
-        <button class="example-chip" onclick="useExample('AI会取代人类吗？')">AI取代人类</button>
-        <button class="example-chip" onclick="useExample('如何变得更自律？')">变得自律</button>
-        <button class="example-chip" onclick="useExample('学什么技能最有前途？')">学什么技能</button>
-        <button class="example-chip" onclick="useExample('什么是真正的成功？')">真正的成功</button>
-      </div>
-
-      <div class="fade-in fade-in-delay-4" style="width:100%;max-width:400px">
-        <button class="btn btn-primary btn-block btn-large" id="btnEvolve" onclick="startEvolution()">
-          ✨ 让千问帮你进化这个问题
-        </button>
-      </div>
-
-      <button class="btn btn-ghost fade-in fade-in-delay-5" onclick="showIntro()">
-        ← 返回
-      </button>
-    </div>
+  <div class="bottom-bar">
+    <span class="slogan-tag">人类进步，从千问开始</span>
+    <span style="color:var(--t-3);margin-left:8px;font-size:0.75rem">— 阿里云千问大模型</span>
   </div>
+</div>
 
-  <!-- ====== 进化动画屏 ====== -->
-  <div class="page-container screen" id="evolutionScreen">
-    <div class="brand-header">
-      <div class="logo-dot"></div>
-      <span class="brand-name">千问正在深度思考...</span>
-    </div>
+<script src="../shared/utils.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const ST={orig:'',evolved:[]};
 
-    <div class="evolution-screen" id="evolutionStages">
-      <!-- 动态填充 -->
-    </div>
+const LAYERS=[
+  {name:'表层追问',emoji:'🔍',system:'你是一个苏格拉底式的哲学咨询师。不要直接回答用户的问题，而是帮助他们发现更深层的问题。只输出新的、更好的问题。',
+   prompt:'用户问了一个问题。让我们深入一层：这个问题背后真正的关切是什么？请将这个问题变得更本质。只输出一个新的、更深刻的问题，不要解释。'},
+  {name:'假设检验',emoji:'🧠',system:'你是一个苏格拉底式的哲学咨询师。挑战用户问题中的隐含假设。只输出新的、更好的问题。',
+   prompt:'更深一层：这个问题的前提假设是什么？如果这些假设不成立呢？请重新表述这个问题，剥离未经审视的假设。只输出新问题，不要解释。'},
+  {name:'视角转换',emoji:'🔄',system:'你是一个苏格拉底式的哲学咨询师。帮用户从未来视角重新审视问题。只输出新的、更好的问题。',
+   prompt:'换一个视角：想象5年后的你，拥有了更多经历和智慧。从那个未来回望——你现在的这个问题，会变成什么样？只输出一个经过深度进化后的新问题，不要解释。'}
+];
 
-    <div class="bottom-fixed">
-      <p style="font-size:0.875rem;text-align:center;color:var(--text-tertiary)">
-        千问大模型正在通过苏格拉底式提问，逐层深入问题本质
-      </p>
-    </div>
-  </div>
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo({top:0,behavior:'smooth'})}
+function goSplash(){goScreen('splash')}
 
-  <!-- ====== 问题树结果屏 ====== -->
-  <div class="page-container screen" id="treeScreen">
-    <div class="brand-header">
-      <div class="logo-dot"></div>
-      <span class="brand-name">你的问题进化树</span>
-    </div>
+function goInput(){
+  ST.orig='';ST.evolved=[];$('qi').value='';$('cc').textContent='0';goScreen('input');
+}
+$('qi').addEventListener('input',()=>{$('cc').textContent=$('qi').value.length});
+function use(q){$('qi').value=q;$('cc').textContent=q.length;goScreen('input')}
 
-    <div class="tree-screen">
-      <p class="fade-in" style="color:var(--text-tertiary);text-align:center">
-        从原始提问到本质追问——这就是千问大模型的力量
-      </p>
+async function goEvolve(){
+  const q = $('qi').value.trim();
+  if(!q){showToast('请先提出一个问题');return}
+  ST.orig=q;ST.evolved=[];
+  goScreen('evolve');
 
-      <div class="tree-container" id="treeContainer">
-        <!-- 动态填充 -->
-      </div>
+  const c=$('evContainer');
+  c.innerHTML = `<div class="ev-stage orig anim-fade-up"><p class="ev-label">📝 原始提问</p><p class="ev-q">${esc(q)}</p></div>`;
 
-      <div class="reveal-section fade-in fade-in-delay-2">
-        <div class="loading-dots">
-          <span></span><span></span><span></span>
-        </div>
-        <p class="reveal-insight" id="revealInsight"></p>
-        <h2 class="final-slogan-p3">
-          人类进步，<span style="background:var(--brand-gradient-soft);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">从千问开始</span>
-        </h2>
-      </div>
+  for(let i=0;i<LAYERS.length;i++){
+    await delay(900);
+    const l=LAYERS[i];
+    c.innerHTML += `<div class="ev-arrow anim-fade-up">↓</div>`;
 
-      <div style="display:flex;gap:var(--space-md);width:100%;max-width:400px">
-        <button class="btn btn-secondary" onclick="showInput()" style="flex:1">
-          🔄 问一个新问题
-        </button>
-        <button class="btn btn-primary" onclick="shareTree()" style="flex:1">
-          📤 分享进化树
-        </button>
-      </div>
-    </div>
+    // 真实API
+    const context = ST.evolved.map((e,j)=>`第${j+1}层问题：${e}`).join('；');
+    const fullPrompt = l.prompt + '\n原始问题：' + q + (context ? '\n之前的进化：' + context : '');
+    const aiResp = await callQianwenAPI(fullPrompt, {systemPrompt:l.system,temperature:0.85,maxTokens:200});
 
-    <div class="bottom-fixed">
-      <p style="font-size:0.875rem;text-align:center">
-        <span style="background:var(--brand-gradient-soft);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">
-          人类进步，从千问开始
-        </span>
-        <span style="color:var(--text-tertiary);margin-left:8px">— 阿里云千问大模型</span>
-      </p>
-    </div>
-  </div>
-
-  <script src="../shared/utils.js"></script>
-  <script>
-    /* === 苏格拉底式提问链 === */
-    // 千问大模型将原始问题逐层进化的prompt链
-    const evolutionLayers = [
-      { name: '表层追问', emoji: '🔍', prompt: '这是一个好问题。让我们深入一层：这个问题背后真正的关切是什么？请将这个问题变得更本质一些。' },
-      { name: '假设检验', emoji: '🧠', prompt: '更深一层：这个问题的前提假设是什么？如果这些假设不成立呢？请重新表述这个问题。' },
-      { name: '视角转换', emoji: '🔄', prompt: '换一个视角：如果从一个完全不同的角度（比如5年后的自己、或者一个陌生人）来看，这个问题会变成什么样？' },
-    ];
-
-    const state = {
-      originalQuestion: '',
-      evolvedQuestions: [], // [{layer, question}]
-      currentEvolutionStep: 0
-    };
-
-    /* === 模拟进化问题（比赛时替换为真实千问API） === */
-    const demoEvolutions = {
-      '怎样才能找到好工作？': [
-        '什么才是"好"？——是薪资高，还是每天都期待起床去做的事？',
-        '如果"好工作"根本不存在于你现在的认知范围内呢？——你是在找已知的答案，还是愿意发现未知的可能？',
-        '五年后的你，会用什么样的方式创造价值，以至于"找工作"这个动作本身都变得多余？'
-      ],
-      '人生的意义是什么？': [
-        '这个问题的重量有多少来自你——有多少来自别人告诉你的标准答案？',
-        '如果"意义"不是被找到的，而是被创造出来的——你今天创造了什么？',
-        '当你停止追问意义的那一刻，你的身体在做什么？那个动作里，也许藏着答案。'
-      ],
-      'AI会取代人类吗？': [
-        '你恐惧的不是AI，而是"变得无用"——所以你真正想问的是：人类不可替代的价值在哪里？',
-        '如果取代不是非此即彼，而是共生共进化——人类最应该保留和放大的特质是什么？',
-        '一个既能调用AI全部能力、又能保持人类直觉和判断力的决策者——他会怎么回答这个问题？'
-      ],
-      '如何变得更自律？': [
-        '自律的反面不是懒，而是"这件事不是你真正想做的"——你真正想做什么？',
-        '如果你此刻感到阻力，那个阻力的源头是什么？是恐惧、疲惫、还是价值观冲突？',
-        '如果不需要"自律"就能持续行动——那件事和你的核心渴望之间，已经形成了怎样的正反馈循环？'
-      ],
-      '学什么技能最有前途？': [
-        '"前途"在你这里的定义是什么——不可替代性、收入天花板、还是意义感？',
-        '如果一项技能5年后可能被AI重新定义，你选择深入它还是站在它之上？',
-        '所有技能的尽头都是"解决问题的能力"——你目前最想解决的问题是什么？'
-      ],
-      '什么是真正的成功？': [
-        '你现在的"成功"定义里，多少是别人写进去的剧本？',
-        '如果成功的唯一标准是你80岁时回头看——你觉得那时的你会给现在的你打多少分？',
-        '成功不是一个终点，而是一种持续的内心状态——此刻你离那种状态有多远？'
-      ]
-    };
-
-    function showIntro() {
-      switchScreen('introScreen');
-    }
-
-    function switchScreen(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    /* === 输入相关 === */
-    const questionInput = document.getElementById('questionInput');
-    if (questionInput) {
-      questionInput.addEventListener('input', () => {
-        document.getElementById('charCount').textContent = questionInput.value.length;
-      });
-    }
-
-    function useExample(question) {
-      document.getElementById('questionInput').value = question;
-      document.getElementById('charCount').textContent = question.length;
-      switchScreen('inputScreen');
-    }
-
-    function showInput() {
-      state.originalQuestion = '';
-      state.evolvedQuestions = [];
-      state.currentEvolutionStep = 0;
-      document.getElementById('questionInput').value = '';
-      document.getElementById('charCount').textContent = '0';
-      switchScreen('inputScreen');
-    }
-
-    /* === 核心：问题进化 === */
-    async function startEvolution() {
-      const question = document.getElementById('questionInput').value.trim();
-      if (!question) {
-        showToast('请先提出一个问题');
-        return;
-      }
-
-      state.originalQuestion = question;
-      state.evolvedQuestions = [];
-      state.currentEvolutionStep = 0;
-
-      switchScreen('evolutionScreen');
-      const container = document.getElementById('evolutionStages');
-
-      // 显示原始问题
-      container.innerHTML = `
-        <div class="evolution-stage original fade-in">
-          <p class="stage-label">📝 原始提问</p>
-          <p class="stage-question">${escapeHtml(question)}</p>
-        </div>
-      `;
-
-      // 逐层进化
-      for (let i = 0; i < evolutionLayers.length; i++) {
-        await delay(1200);
-
-        const layer = evolutionLayers[i];
-        const prompt = layer.prompt + '\n原始问题：' + question + '\n已进化的问题：' + state.evolvedQuestions.map(eq => eq.question).join(' → ');
-
-        // 尝试调用千问API
-        const aiResponse = await callQianwenAPI(prompt, { temperature: 0.85 });
-
-        // 使用AI响应或演示数据
-        let evolvedQ;
-        const demoEvo = demoEvolutions[question];
-        if (demoEvo && demoEvo[i]) {
-          evolvedQ = demoEvo[i];
-        } else {
-          evolvedQ = aiResponse || generateGenericEvolution(question, i);
-        }
-
-        state.evolvedQuestions.push({ layer: layer.name, emoji: layer.emoji, question: evolvedQ });
-
-        container.innerHTML += `
-          <div class="evolution-arrow">↓</div>
-          <div class="evolution-thinking fade-in">
-            千问正在${layer.name}...
-          </div>
-          <div class="evolution-stage ${i === evolutionLayers.length - 1 ? 'final' : 'evolved'} fade-in">
-            <p class="stage-label">${layer.emoji} ${layer.name}</p>
-            <p class="stage-question">${escapeHtml(evolvedQ)}</p>
-          </div>
-        `;
-
-        container.scrollTop = container.scrollHeight;
-        await delay(800);
-      }
-
-      // 最终过渡
-      await delay(600);
-      document.querySelectorAll('.evolution-thinking').forEach(el => el.remove());
-
-      await delay(1000);
-      showTree();
-    }
-
-    function generateGenericEvolution(question, layerIndex) {
-      const generics = [
-        [
-          '这个问题真正在问的是什么？让我们更接近本质：你想要的是结果，还是过程？',
-          '如果你的前提本身需要被审视——那些"理所当然"的假设，真的经得起推敲吗？',
-          '从未来的视角回望——当这个问题不再是问题的那一天，你已经变成了什么样的人？'
+    let ev;
+    if (aiResp) { ev = aiResp.trim(); }
+    else {
+      // fallback
+      const demos={
+        '怎样才能找到好工作？':[
+          '什么才是"好"？——是薪资高，还是每天都期待起床去做的事？',
+          '如果"好工作"根本不存在于你现在的认知范围内呢？你是在找已知的答案，还是愿意发现未知的可能？',
+          '五年后的你，会用什么样的方式创造价值，以至于"找工作"这个动作本身变得多余？'
+        ],
+        '人生的意义是什么？':[
+          '这个问题的重量有多少来自你自己——有多少来自别人告诉你的标准答案？',
+          '如果"意义"不是被找到的，而是被创造出来的——你今天创造了什么？',
+          '当你停止追问意义的那一刻，你的身体在做什么？那个动作里，也许藏着答案。'
         ]
-      ];
-      return generics[0][layerIndex] || '每一个问题都是一扇门，关键不在于门后面有什么，而在于你选择推开哪一扇。';
+      };
+      ev = (demos[q]||[])[i] || `关于「${q}」，让我们换个角度思考：如果${i===0?'答案本身不是目的，过程才是':i===1?'所有前提都可以被推翻':i===2?'未来的你会感谢现在追问的自己'}，这个问题会变成什么样？`;
     }
+    ST.evolved.push(ev);
 
-    /* === 问题树展示 === */
-    function showTree() {
-      switchScreen('treeScreen');
+    c.innerHTML += `<div class="ev-stage ${i===2?'final':'mid'} anim-fade-up"><p class="ev-label">${l.emoji} ${l.name}</p><p class="ev-q">${esc(ev)}</p></div>`;
+    c.scrollTop=c.scrollHeight;
+    await delay(600);
+  }
 
-      const container = document.getElementById('treeContainer');
-      const nodes = state.evolvedQuestions;
+  await delay(800);
+  document.querySelectorAll('#evContainer .ev-arrow').forEach(e=>e.remove());
+  await delay(600);
+  goTree();
+}
 
-      let treeHTML = `
-        <div class="tree-node tree-root fade-in" style="animation-delay:0ms">
-          <span class="tree-badge">根</span>${escapeHtml(state.originalQuestion)}
-        </div>
-      `;
+function goTree(){
+  goScreen('tree');
+  const v=$('treeVis');
+  let h=`<div class="t-node t-root anim-fade-up" style="position:relative"><span class="t-badge">根</span>${esc(ST.orig)}</div>`;
+  ST.evolved.forEach((q,i)=>{
+    const cls=i===ST.evolved.length-1?'t-leaf':'t-branch';
+    const label=i===ST.evolved.length-1?'本质':`第${i+1}层`;
+    h+=`<div class="t-node ${cls} anim-fade-up d-${i+1}" style="position:relative"><span class="t-badge">${label}</span>${esc(q)}</div>`;
+  });
+  v.innerHTML=h;
 
-      nodes.forEach((eq, i) => {
-        const type = i === nodes.length - 1 ? 'tree-leaf' : 'tree-branch';
-        const badgeLabel = i === nodes.length - 1 ? '本质' : `第${i + 1}层`;
-        treeHTML += `
-          <div class="tree-node ${type} fade-in" style="animation-delay:${(i + 1) * 150}ms">
-            <span class="tree-badge">${badgeLabel}</span>${escapeHtml(eq.question)}
-          </div>
-        `;
-      });
+  const lastQ=ST.evolved[ST.evolved.length-1]||'';
+  const insight=`从「${ST.orig}」到「${lastQ}」——你看到了吗？问题本身在进化，而你离本质越来越近了。这就是千问大模型存在的意义：不是替你思考，是陪你更深入地思考。`;
+  const el=$('insight');el.textContent='';
+  typeIt(el,insight);
+}
 
-      container.innerHTML = treeHTML;
+async function typeIt(el,text){
+  for(let i=0;i<text.length;i++){el.textContent+=text[i];if(i%3===0)await delay(12)}
+}
 
-      // 揭示洞察
-      const insightEl = document.getElementById('revealInsight');
-      insightEl.textContent = '';
-      const insight = `从「${state.originalQuestion}」到「${nodes[nodes.length - 1].question}」——你看到了吗？问题本身在进化，而你离本质越来越近了。这就是千问大模型存在的意义：不是替你思考，是陪你更深入地思考。`;
-      typewriterEffect(insightEl, insight, 40);
-    }
+async function share(){
+  const last=ST.evolved[ST.evolved.length-1]||'';
+  await shareContent('问题进化树-千问大模型',`我问：${ST.orig}\n千问帮我进化为：${last}\n\n人类进步，从千问开始 🌐\n——阿里云千问大模型 × 第18届大广赛`,window.location.href);
+}
 
-    /* === 分享 === */
-    async function shareTree() {
-      const finalQ = state.evolvedQuestions.length > 0
-        ? state.evolvedQuestions[state.evolvedQuestions.length - 1].question
-        : '';
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
-      const shareText = `我问了一个问题：${state.originalQuestion}\n千问帮我把它进化为：${finalQ}\n\n人类进步，从千问开始 🌐\n—— 阿里云千问大模型 × 第18届大广赛`;
-      await shareContent(
-        '问题进化树 - 千问大模型',
-        shareText,
-        window.location.href
-      );
-    }
-
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    /* === 窗口大小调整时重绘 === */
-    window.addEventListener('resize', () => {
-      // 未来雷达图等需要重绘的逻辑
-    });
-
-    /* === 初始化 === */
-    function init() {
-      const particlesContainer = document.getElementById('particles');
-      particlesContainer.appendChild(createParticles(20));
-    }
-
-    init();
-  </script>
+goScreen('splash');
+</script>
 </body>
 </html>
